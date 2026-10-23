@@ -1,0 +1,3841 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Studio Audio Muhadharah</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item active"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">🎧 Audio Muhadharah</div>
+        <div class="page-subtitle">Koleksi rekaman ceramah, muhadharah, dan bacaan murottal ustadz/santri</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ</div>
+      <div class="quote-indo">"Bacalah dengan (menyebut) nama Tuhanmu yang menciptakan."</div>
+      <div class="quote-source">— Q.S. Al-'Alaq: 1</div>
+    </div>
+
+    <!-- Storage Info Banner -->
+    <div style="background:rgba(26,92,56,0.08);border:1.5px solid var(--primary-light);border-radius:var(--border-radius-sm);padding:12px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center;">
+      <span style="font-size:1.4rem;flex-shrink:0;">🚀</span>
+      <div style="font-size:0.84rem;color:var(--text-dark);line-height:1.5;">
+        <strong>IndexedDB Blob Storage & Read-on-Demand Aktif:</strong> Mendukung penyimpanan file audio rekaman berukuran besar (10MB, 50MB, 100MB+) secara langsung tanpa batas localStorage, dengan alur pemutaran cepat hemat memori.
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <h3 style="color:var(--primary-dark);font-size:1rem;">🎵 Koleksi Audio (<span id="audioCount">0</span>)</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalUpload')">⬆️ Upload Audio Baru</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari judul, ustadz, atau topik..." oninput="renderList()">
+      </div>
+    </div>
+
+    <div id="audioList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"></div>
+  </div>
+</main>
+
+<!-- Modal Upload -->
+<div class="modal-overlay" id="modalUpload">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⬆️ Upload Audio Muhadharah</div>
+      <button class="modal-close" onclick="closeModal('modalUpload')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Judul Muhadharah <span style="color:red">*</span></label>
+        <input type="text" id="inpJudul" class="form-control" placeholder="Judul ceramah / materi kajian">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Ustadz / Pemateri <span style="color:red">*</span></label>
+          <input type="text" id="inpUstadz" class="form-control" placeholder="Nama ustadz / ustadzah">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Topik / Tema</label>
+          <input type="text" id="inpTopik" class="form-control" placeholder="Contoh: Tafsir, Hadits, Tazkiyah">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Rekaman</label>
+        <input type="date" id="inpTanggal" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pilih File Audio <span style="color:red">*</span></label>
+        <input type="file" id="inpFile" class="form-control" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac" onchange="onFileSelect(this)">
+        <p class="form-hint">Mendukung format MP3, WAV, OGG, M4A. File disimpan aman di IndexedDB Browser.</p>
+      </div>
+      <div id="fileInfo" style="display:none;background:var(--cream-dark);border-radius:var(--border-radius-sm);padding:10px 14px;font-size:0.82rem;">
+        <span id="fileInfoText"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalUpload')">Batal</button>
+      <button class="btn btn-primary" id="btnUpload" onclick="uploadAudio()">💾 Simpan Audio</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+  initSidebar();
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+  document.getElementById('inpTanggal').value = todayStr();
+
+  function getData() { return getUserData('muhadharah', session.userId); }
+  function saveData(d) { saveUserData('muhadharah', session.userId, d); }
+
+  let selectedFileObj = null;
+
+  function onFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedFileObj = file;
+    const sizeStr = MisykahDB.formatBytes(file.size);
+    const infoEl = document.getElementById('fileInfo');
+    const infoText = document.getElementById('fileInfoText');
+    infoEl.style.display = 'block';
+    infoEl.style.borderLeft = '3px solid var(--primary)';
+    infoText.innerHTML = `📁 <strong>${file.name}</strong> — ${sizeStr} <span class="badge badge-success" style="font-size:0.7rem;margin-left:6px;">IndexedDB Blob</span>`;
+  }
+
+  async function uploadAudio() {
+    const judul  = document.getElementById('inpJudul').value.trim();
+    const ustadz = document.getElementById('inpUstadz').value.trim();
+    const topik  = document.getElementById('inpTopik').value.trim();
+    const tanggal = document.getElementById('inpTanggal').value;
+
+    if (!judul) { showToast('Judul tidak boleh kosong!', 'error'); return; }
+    if (!ustadz) { showToast('Nama pemateri diperlukan!', 'error'); return; }
+    if (!selectedFileObj) { showToast('Pilih file audio terlebih dahulu!', 'error'); return; }
+
+    const btn = document.getElementById('btnUpload');
+    btn.innerHTML = '<span class="loader"></span> Menyimpan ke IndexedDB...';
+    btn.disabled = true;
+
+    try {
+      const id = generateId();
+      // Store raw Blob / File in IndexedDB
+      await MisykahDB.saveFile(id, selectedFileObj, {
+        name: selectedFileObj.name,
+        type: selectedFileObj.type || 'audio/mp3',
+        size: selectedFileObj.size
+      });
+
+      // Store lightweight metadata in localStorage
+      const item = {
+        id: id,
+        judul: judul,
+        ustadz: ustadz,
+        topik: topik,
+        tanggal: tanggal,
+        fileName: selectedFileObj.name,
+        fileSize: selectedFileObj.size,
+        fileType: selectedFileObj.type || 'audio/mp3',
+        storage: 'indexeddb'
+      };
+
+      const data = getData();
+      data.unshift(item);
+      saveData(data);
+
+      closeModal('modalUpload');
+      resetForm();
+      showToast('Audio berhasil disimpan via IndexedDB! 🎧', 'success');
+      renderList();
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal menyimpan file audio ke database browser.', 'error');
+    }
+
+    btn.innerHTML = '💾 Simpan Audio';
+    btn.disabled = false;
+  }
+
+  function resetForm() {
+    document.getElementById('inpJudul').value = '';
+    document.getElementById('inpUstadz').value = '';
+    document.getElementById('inpTopik').value = '';
+    document.getElementById('inpTanggal').value = todayStr();
+    document.getElementById('inpFile').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    selectedFileObj = null;
+  }
+
+  async function hapus(id) {
+    if (!confirm('Hapus rekaman audio ini dari koleksi?')) return;
+    try {
+      await MisykahDB.deleteFile(id);
+    } catch(e) {
+      console.warn('Error deleting from IndexedDB:', e);
+    }
+    saveData(getData().filter(a => a.id !== id));
+    showToast('Audio telah dihapus.', 'info');
+    renderList();
+  }
+
+  function renderList() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const data = getData();
+    const filtered = data.filter(a =>
+      !search || a.judul.toLowerCase().includes(search) || a.ustadz.toLowerCase().includes(search) || (a.topik||'').toLowerCase().includes(search)
+    ).sort((a,b) => b.tanggal > a.tanggal ? 1 : -1);
+
+    document.getElementById('audioCount').textContent = data.length;
+    const el = document.getElementById('audioList');
+
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">🎧</span><h3>Belum ada audio muhadharah</h3><p>Upload rekaman ceramah atau kajian untuk memulai</p></div>`;
+      return;
+    }
+
+    el.innerHTML = filtered.map((a, idx) => {
+      const sizeStr = a.fileSize ? MisykahDB.formatBytes(a.fileSize) : '';
+      return `
+        <div class="audio-card">
+          <div class="audio-card-header">
+            <div class="audio-thumb">🎧</div>
+            <div class="audio-info">
+              <div class="audio-title">${a.judul}</div>
+              <div class="audio-meta">
+                <div>👤 ${a.ustadz}</div>
+                ${a.topik ? `<div>🏷 ${a.topik}</div>` : ''}
+                <div>📅 ${formatDate(a.tanggal)} ${sizeStr ? `• 💾 ${sizeStr}` : ''}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden audio element for read-on-demand playback -->
+          <audio id="audio_${idx}" data-audio-id="${a.id}" preload="none"></audio>
+
+          <!-- Custom Play Controls -->
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+            <button class="btn btn-primary btn-sm" id="btnPlay_${idx}" onclick="togglePlay('${a.id}', ${idx}, this)" style="min-width:85px;">
+              ▶️ Putar
+            </button>
+            <div style="flex:1;height:7px;background:var(--cream-dark);border-radius:4px;overflow:hidden;cursor:pointer;" onclick="seekAudio(event, ${idx})">
+              <div id="progress_${idx}" style="height:100%;background:var(--primary);width:0%;border-radius:4px;transition:width 0.1s;"></div>
+            </div>
+            <span id="time_${idx}" style="font-size:0.72rem;color:var(--text-muted);min-width:70px;text-align:right;">0:00 / 0:00</span>
+          </div>
+
+          <!-- Speed & Loop Controls -->
+          <div class="audio-controls-bar">
+            <div class="speed-control">
+              <span>⏩ Speed:</span>
+              <button class="speed-btn" onclick="setSpeed(${idx}, 0.5, this)">0.5×</button>
+              <button class="speed-btn" onclick="setSpeed(${idx}, 0.75, this)">0.75×</button>
+              <button class="speed-btn active" onclick="setSpeed(${idx}, 1, this)">1×</button>
+              <button class="speed-btn" onclick="setSpeed(${idx}, 1.25, this)">1.25×</button>
+              <button class="speed-btn" onclick="setSpeed(${idx}, 1.5, this)">1.5×</button>
+              <button class="speed-btn" onclick="setSpeed(${idx}, 2, this)">2×</button>
+            </div>
+            <div class="loop-control">
+              <button class="loop-btn" onclick="toggleLoop(${idx}, this)" title="Ulangi Terus-Menerus">🔁 Loop</button>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+            <span style="font-size:0.75rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">📁 ${a.fileName || 'audio'}</span>
+            <button class="btn btn-danger btn-sm" onclick="hapus('${a.id}')">🗑 Hapus</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach listeners
+    filtered.forEach((a, idx) => {
+      const audioEl = document.getElementById(`audio_${idx}`);
+      if (audioEl) {
+        audioEl.addEventListener('timeupdate', () => updateTime(idx));
+        audioEl.addEventListener('ended', () => {
+          const btn = document.getElementById(`btnPlay_${idx}`);
+          if (btn) btn.innerHTML = '▶️ Putar';
+        });
+      }
+    });
+  }
+
+  // ── Read-on-Demand Playback ──
+  async function togglePlay(audioId, idx, btn) {
+    const audio = document.getElementById(`audio_${idx}`);
+    if (!audio) return;
+
+    // Read on demand: Load stream URL if not set
+    if (!audio.src) {
+      btn.innerHTML = '<span class="loader"></span> Memuat...';
+      try {
+        // Try IndexedDB first
+        let url = await MisykahDB.getFileUrl(audioId);
+        // Fallback for legacy base64 if existing
+        if (!url) {
+          const item = getData().find(x => x.id === audioId);
+          if (item && item.fileData) url = item.fileData;
+        }
+
+        if (!url) {
+          showToast('File audio tidak ditemukan di database.', 'error');
+          btn.innerHTML = '▶️ Putar';
+          return;
+        }
+
+        audio.src = url;
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal memuat audio dari IndexedDB.', 'error');
+        btn.innerHTML = '▶️ Putar';
+        return;
+      }
+    }
+
+    if (audio.paused) {
+      // Pause other audio players
+      document.querySelectorAll('audio').forEach(a => {
+        if (a.id !== `audio_${idx}` && !a.paused) a.pause();
+      });
+      document.querySelectorAll('[id^="btnPlay_"]').forEach(b => {
+        if (b.id !== `btnPlay_${idx}`) b.innerHTML = '▶️ Putar';
+      });
+
+      audio.play();
+      btn.innerHTML = '⏸ Jeda';
+    } else {
+      audio.pause();
+      btn.innerHTML = '▶️ Putar';
+    }
+  }
+
+  function updateTime(idx) {
+    const audio = document.getElementById(`audio_${idx}`);
+    const prog = document.getElementById(`progress_${idx}`);
+    const time = document.getElementById(`time_${idx}`);
+    if (!audio || !prog || !time) return;
+    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    prog.style.width = pct + '%';
+    time.textContent = fmtTime(audio.currentTime) + ' / ' + fmtTime(audio.duration || 0);
+  }
+
+  function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function seekAudio(e, idx) {
+    const audio = document.getElementById(`audio_${idx}`);
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = ratio * audio.duration;
+  }
+
+  function setSpeed(idx, speed, btn) {
+    const audio = document.getElementById(`audio_${idx}`);
+    if (audio) audio.playbackRate = speed;
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function toggleLoop(idx, btn) {
+    const audio = document.getElementById(`audio_${idx}`);
+    if (!audio) return;
+    audio.loop = !audio.loop;
+    btn.classList.toggle('active', audio.loop);
+    showToast(audio.loop ? 'Mode loop diaktifkan 🔁' : 'Mode loop dimatikan', audio.loop ? 'success' : 'info');
+  }
+
+  renderList();
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Jadwal Murojaah</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item active"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">📖 Jadwal Murojaah</div>
+        <div class="page-subtitle">Atur dan pantau jadwal murojaah harian Anda</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+      <div class="quote-indo">"Sebaik-baik kalian adalah yang mempelajari Al-Qur'an dan mengajarkannya."</div>
+      <div class="quote-source">— H.R. Bukhari</div>
+    </div>
+
+    <!-- Progress Today -->
+    <div class="card mb-3" id="progressCard">
+      <div class="flex items-center justify-between mb-2">
+        <div class="card-title" style="font-size:0.95rem;">📊 Progress Hari Ini</div>
+        <span id="progressLabel" style="font-size:0.85rem;font-weight:600;color:var(--primary);">0 / 0</span>
+      </div>
+      <div class="progress-bar" style="height:12px;">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+        <span>0%</span>
+        <span id="progressPct">0% selesai</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- Monthly Target -->
+    <div class="target-card mb-3" id="targetCard">
+      <div class="flex items-center justify-between" style="position:relative;z-index:1;">
+        <div>
+          <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold-light);font-weight:600;">🎯 Target Hafalan Bulan Ini</div>
+          <div style="font-size:1.6rem;font-weight:700;margin-top:4px;" id="targetTitle">Belum diatur</div>
+        </div>
+        <button onclick="openModal('modalTarget')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">
+          ✏️ Atur Target
+        </button>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:14px;font-size:0.85rem;position:relative;z-index:1;">
+        <div><span style="color:var(--gold-light);">✅ Tercapai:</span> <strong id="targetDone">0</strong></div>
+        <div><span style="color:rgba(255,255,255,0.7);">🎯 Target:</span> <strong id="targetTotal">0</strong> sesi</div>
+        <div><span style="color:rgba(255,255,255,0.7);">📅 Sisa Hari:</span> <strong id="targetDaysLeft">0</strong></div>
+      </div>
+      <div class="target-progress-bar">
+        <div class="target-progress-fill" id="targetFill" style="width:0%"></div>
+      </div>
+      <div style="text-align:right;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:6px;" id="targetPct">0% tercapai</div>
+    </div>
+
+    <!-- Week Calendar -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="card-title">🗓 Kalender Mingguan</div>
+      </div>
+      <div class="week-calendar" id="weekCalendar"></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <h3 style="color:var(--primary-dark);font-size:1rem;">📋 Daftar Murojaah</h3>
+      <div class="flex gap-1 flex-wrap">
+        <button class="btn btn-outline btn-sm" onclick="exportLaporan()">📊 Ekspor Laporan</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modalTambah')">➕ Tambah Jadwal</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari materi..." oninput="renderList()">
+      </div>
+      <select class="form-control" id="filterStatus" onchange="renderList()" style="width:auto;min-width:130px;">
+        <option value="">Semua Status</option>
+        <option value="belum">Belum</option>
+        <option value="selesai">Selesai</option>
+        <option value="terlewat">Terlewat</option>
+      </select>
+      <select class="form-control" id="filterKategori" onchange="renderList()" style="width:auto;min-width:150px;">
+        <option value="">Semua Kategori</option>
+        <option value="Al-Qur'an">Al-Qur'an</option>
+        <option value="Hadits">Hadits</option>
+        <option value="Bahasa Arab">Bahasa Arab</option>
+        <option value="Fiqh">Fiqh</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+    </div>
+
+    <div id="murojaahList"></div>
+  </div>
+</main>
+
+<!-- Modal Tambah -->
+<div class="modal-overlay" id="modalTambah">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📖 Tambah Jadwal Murojaah</div>
+      <button class="modal-close" onclick="closeModal('modalTambah')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Materi Murojaah <span style="color:red">*</span></label>
+        <input type="text" id="inpMateri" class="form-control" placeholder="Contoh: Al-Baqarah ayat 1-10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="inpKategori" class="form-control">
+            <option value="Al-Qur'an">Al-Qur'an</option>
+            <option value="Hadits">Hadits</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Fiqh">Fiqh</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Waktu</label>
+          <select id="inpWaktu" class="form-control">
+            <option value="Subuh">Subuh</option>
+            <option value="Dhuha">Dhuha</option>
+            <option value="Sore">Sore</option>
+            <option value="Malam">Malam</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Jadwal <span style="color:red">*</span></label>
+        <input type="date" id="inpJadwal" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan (Opsional)</label>
+        <textarea id="inpCatatan" class="form-control" placeholder="Catatan tambahan..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTambah')">Batal</button>
+      <button class="btn btn-primary" onclick="tambahMurojaah()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal-overlay" id="modalEdit">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Jadwal Murojaah</div>
+      <button class="modal-close" onclick="closeModal('modalEdit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label class="form-label">Materi Murojaah</label>
+        <input type="text" id="editMateri" class="form-control">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="editKategori" class="form-control">
+            <option value="Al-Qur'an">Al-Qur'an</option>
+            <option value="Hadits">Hadits</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Fiqh">Fiqh</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Waktu</label>
+          <select id="editWaktu" class="form-control">
+            <option value="Subuh">Subuh</option>
+            <option value="Dhuha">Dhuha</option>
+            <option value="Sore">Sore</option>
+            <option value="Malam">Malam</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input type="date" id="editJadwal" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="editStatus" class="form-control">
+          <option value="belum">Belum</option>
+          <option value="selesai">Selesai</option>
+          <option value="terlewat">Terlewat</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan</label>
+        <textarea id="editCatatan" class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalEdit')">Batal</button>
+      <button class="btn btn-primary" onclick="simpanEdit()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Target Bulanan -->
+<div class="modal-overlay" id="modalTarget">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">🎯 Atur Target Hafalan Bulanan</div>
+      <button class="modal-close" onclick="closeModal('modalTarget')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nama Target / Materi 🏷️</label>
+        <input type="text" id="targetName" class="form-control" placeholder="Contoh: Hafalan Juz 30 / Matan Al-Jazari">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jumlah Sesi Murojaah yang Ditargetkan 🎯</label>
+        <input type="number" id="targetCount" class="form-control" min="1" max="999" value="30" placeholder="30">
+        <p class="form-hint">Berapa total sesi murojaah yang ingin diselesaikan bulan ini?</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTarget')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTarget()">💾 Simpan Target</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+  initSidebar();
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+
+  // Set default date
+  document.getElementById('inpJadwal').value = todayStr();
+
+  function getData() { return getUserData('murojaah', session.userId); }
+  function saveData(d) { saveUserData('murojaah', session.userId, d); }
+
+  // ── Week Calendar ─────────────────────────────────────────
+  function renderCalendar() {
+    const cal = document.getElementById('weekCalendar');
+    const data = getData();
+    const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const ds = d.toISOString().split('T')[0];
+      const hasItems = data.some(m => m.jadwal === ds);
+      const isToday = i === 0;
+      html += `<div class="day-cell ${isToday ? 'today' : ''} ${hasItems ? 'has-items' : ''}" onclick="filterByDate('${ds}')">
+        <div class="day-name">${dayNames[d.getDay()]}</div>
+        <div class="day-num">${d.getDate()}</div>
+      </div>`;
+    }
+    cal.innerHTML = html;
+  }
+
+  function filterByDate(ds) {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterKategori').value = '';
+    renderList(ds);
+  }
+
+  // ── Progress ─────────────────────────────────────────────
+  function updateProgress() {
+    const data = getData();
+    const today = todayStr();
+    const todayItems = data.filter(m => m.jadwal === today);
+    const selesai = todayItems.filter(m => m.status === 'selesai').length;
+    const total = todayItems.length;
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = selesai + ' / ' + total;
+    document.getElementById('progressPct').textContent = pct + '% selesai';
+  }
+
+  // ── Render List ──────────────────────────────────────────
+  function renderList(forceDateFilter) {
+    const data = getData();
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const statusF = document.getElementById('filterStatus').value;
+    const katF = document.getElementById('filterKategori').value;
+
+    let filtered = data.filter(m => {
+      const matchSearch = !search || m.materi.toLowerCase().includes(search) || (m.catatan||'').toLowerCase().includes(search);
+      const matchStatus = !statusF || m.status === statusF;
+      const matchKat = !katF || m.kategori === katF;
+      const matchDate = !forceDateFilter || m.jadwal === forceDateFilter;
+      return matchSearch && matchStatus && matchKat && matchDate;
+    }).sort((a,b) => a.jadwal > b.jadwal ? 1 : -1);
+
+    // Auto-mark overdue
+    const today = todayStr();
+    let changed = false;
+    data.forEach(m => {
+      if (m.jadwal < today && m.status === 'belum') { m.status = 'terlewat'; changed = true; }
+    });
+    if (changed) saveData(data);
+
+    const el = document.getElementById('murojaahList');
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><h3>Tidak ada jadwal ditemukan</h3><p>Tambahkan jadwal murojaah baru untuk memulai</p></div>`;
+      return;
+    }
+
+    const statusBadge = { belum: 'warning', selesai: 'success', terlewat: 'danger' };
+    const statusLabel = { belum: '⏳ Belum', selesai: '✅ Selesai', terlewat: '❌ Terlewat' };
+    const waktuIkon  = { Subuh:'🌙', Dhuha:'🌅', Sore:'🌇', Malam:'🌃' };
+
+    el.innerHTML = filtered.map(m => `
+      <div class="murojaah-item ${m.status}">
+        <div class="murojaah-info">
+          <div class="murojaah-materi">${m.materi}</div>
+          <div class="murojaah-meta">
+            <span>${waktuIkon[m.waktu]||'⏰'} ${m.waktu}</span>
+            <span>📅 ${formatDate(m.jadwal)}</span>
+            <span class="badge badge-primary">${m.kategori}</span>
+            <span class="badge badge-${statusBadge[m.status]}">${statusLabel[m.status]}</span>
+          </div>
+          ${m.catatan ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">📝 ${m.catatan}</div>` : ''}
+        </div>
+        <div class="murojaah-actions">
+          ${m.status !== 'selesai' ? `<button class="btn btn-sm btn-outline" onclick="tandaiSelesai('${m.id}')" title="Tandai Selesai">✅</button>` : ''}
+          <button class="btn btn-sm btn-outline-gold" onclick="editItem('${m.id}')" title="Edit">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="hapus('${m.id}')" title="Hapus">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function tandaiSelesai(id) {
+    const data = getData();
+    const item = data.find(m => m.id === id);
+    if (item) { item.status = 'selesai'; saveData(data); showToast('Murojaah ditandai selesai! 🎉', 'success'); refresh(); }
+  }
+
+  function hapus(id) {
+    if (!confirm('Hapus jadwal murojaah ini?')) return;
+    const data = getData().filter(m => m.id !== id);
+    saveData(data); showToast('Jadwal dihapus.', 'info'); refresh();
+  }
+
+  function editItem(id) {
+    const item = getData().find(m => m.id === id);
+    if (!item) return;
+    document.getElementById('editId').value = id;
+    document.getElementById('editMateri').value = item.materi;
+    document.getElementById('editKategori').value = item.kategori;
+    document.getElementById('editWaktu').value = item.waktu;
+    document.getElementById('editJadwal').value = item.jadwal;
+    document.getElementById('editStatus').value = item.status;
+    document.getElementById('editCatatan').value = item.catatan || '';
+    openModal('modalEdit');
+  }
+
+  function simpanEdit() {
+    const id = document.getElementById('editId').value;
+    const data = getData();
+    const idx = data.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    data[idx].materi   = document.getElementById('editMateri').value.trim();
+    data[idx].kategori = document.getElementById('editKategori').value;
+    data[idx].waktu    = document.getElementById('editWaktu').value;
+    data[idx].jadwal   = document.getElementById('editJadwal').value;
+    data[idx].status   = document.getElementById('editStatus').value;
+    data[idx].catatan  = document.getElementById('editCatatan').value.trim();
+    saveData(data); closeModal('modalEdit'); showToast('Jadwal berhasil diperbarui ✅', 'success'); refresh();
+  }
+
+  function tambahMurojaah() {
+    const materi = document.getElementById('inpMateri').value.trim();
+    const jadwal = document.getElementById('inpJadwal').value;
+    if (!materi) { showToast('Materi tidak boleh kosong!', 'error'); return; }
+    if (!jadwal) { showToast('Tanggal harus dipilih!', 'error'); return; }
+
+    const item = {
+      id: generateId(),
+      materi,
+      kategori: document.getElementById('inpKategori').value,
+      jadwal,
+      waktu: document.getElementById('inpWaktu').value,
+      status: 'belum',
+      catatan: document.getElementById('inpCatatan').value.trim()
+    };
+    const data = getData();
+    data.push(item);
+    saveData(data);
+    closeModal('modalTambah');
+    document.getElementById('inpMateri').value = '';
+    document.getElementById('inpCatatan').value = '';
+    document.getElementById('inpJadwal').value = todayStr();
+    showToast('Jadwal berhasil ditambahkan! 📖', 'success');
+    refresh();
+  }
+
+  function refresh() { renderCalendar(); updateProgress(); renderList(); updateTarget(); }
+  refresh();
+
+  // ── Monthly Target ──────────────────────────────────────────
+  function getTarget() {
+    const key = `misykah_target_${session.userId}`;
+    return JSON.parse(localStorage.getItem(key) || 'null');
+  }
+  function setTargetData(data) {
+    const key = `misykah_target_${session.userId}`;
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function saveTarget() {
+    const name = document.getElementById('targetName').value.trim() || 'Target Murojaah';
+    const count = parseInt(document.getElementById('targetCount').value) || 30;
+    const now = new Date();
+    setTargetData({
+      name,
+      count,
+      month: now.getMonth(),
+      year: now.getFullYear()
+    });
+    closeModal('modalTarget');
+    showToast('Target bulanan berhasil disimpan! 🎯', 'success');
+    updateTarget();
+  }
+
+  function updateTarget() {
+    const target = getTarget();
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+
+    // Count completed sessions this month
+    const data = getData();
+    const selesaiBulanIni = data.filter(m => {
+      if (m.status !== 'selesai') return false;
+      const d = new Date(m.jadwal);
+      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+
+    // Days remaining this month
+    const lastDay = new Date(thisYear, thisMonth + 1, 0).getDate();
+    const daysLeft = lastDay - now.getDate();
+
+    if (target && target.month === thisMonth && target.year === thisYear) {
+      document.getElementById('targetTitle').textContent = target.name;
+      document.getElementById('targetDone').textContent = selesaiBulanIni;
+      document.getElementById('targetTotal').textContent = target.count;
+      document.getElementById('targetDaysLeft').textContent = daysLeft;
+      const pct = Math.min(100, Math.round((selesaiBulanIni / target.count) * 100));
+      document.getElementById('targetFill').style.width = pct + '%';
+      document.getElementById('targetPct').textContent = pct + '% tercapai';
+      // Pre-fill modal
+      document.getElementById('targetName').value = target.name;
+      document.getElementById('targetCount').value = target.count;
+    } else {
+      document.getElementById('targetTitle').textContent = 'Belum diatur — Atur target bulan ini ✏️';
+      document.getElementById('targetDone').textContent = selesaiBulanIni;
+      document.getElementById('targetTotal').textContent = '-';
+      document.getElementById('targetDaysLeft').textContent = daysLeft;
+      document.getElementById('targetFill').style.width = '0%';
+      document.getElementById('targetPct').textContent = 'Silakan atur target';
+    }
+  }
+
+  // ── Export Laporan ──────────────────────────────────────────
+  function exportLaporan() {
+    const data = getData();
+    if (data.length === 0) {
+      showToast('Belum ada data murojaah untuk diekspor.', 'warning');
+      return;
+    }
+
+    const now = new Date();
+    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const bulan = monthNames[now.getMonth()];
+    const tahun = now.getFullYear();
+
+    const total = data.length;
+    const selesai = data.filter(m => m.status === 'selesai').length;
+    const belum = data.filter(m => m.status === 'belum').length;
+    const terlewat = data.filter(m => m.status === 'terlewat').length;
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+
+    // Group by category
+    const byKat = {};
+    data.forEach(m => {
+      if (!byKat[m.kategori]) byKat[m.kategori] = { total: 0, selesai: 0 };
+      byKat[m.kategori].total++;
+      if (m.status === 'selesai') byKat[m.kategori].selesai++;
+    });
+
+    let report = `╔══════════════════════════════════════════════╗\n`;
+    report += `║   📊 LAPORAN MUROJAAH — (مشكاة)              ║\n`;
+    report += `╚══════════════════════════════════════════════╝\n\n`;
+    report += `📅 Periode    : ${bulan} ${tahun}\n`;
+    report += `👤 Santri     : ${session.name} (@${session.username})\n`;
+    report += `📅 Tanggal    : ${getMiladiDate()}\n`;
+    report += `🕌 Hijriah    : ${getHijriDate()}\n`;
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📈 RINGKASAN STATISTIK\n`;
+    report += `${'─'.repeat(48)}\n`;
+    report += `  Total Jadwal     : ${total} sesi\n`;
+    report += `  ✅ Selesai       : ${selesai} sesi (${pct}%)\n`;
+    report += `  ⏳ Belum         : ${belum} sesi\n`;
+    report += `  ❌ Terlewat      : ${terlewat} sesi\n`;
+
+    // Target info
+    const target = getTarget();
+    if (target && target.month === now.getMonth() && target.year === now.getFullYear()) {
+      const tgtPct = Math.min(100, Math.round((selesai / target.count) * 100));
+      report += `\n  🎯 Target Bulan  : ${target.name}\n`;
+      report += `     Progress      : ${selesai}/${target.count} (${tgtPct}%)\n`;
+    }
+
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📂 RINCIAN PER KATEGORI\n`;
+    report += `${'─'.repeat(48)}\n`;
+    Object.entries(byKat).forEach(([kat, v]) => {
+      report += `  📖 ${kat}: ${v.selesai}/${v.total} selesai\n`;
+    });
+
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📋 DAFTAR LENGKAP MUROJAAH\n`;
+    report += `${'─'.repeat(48)}\n`;
+    data.sort((a,b) => a.jadwal > b.jadwal ? 1 : -1).forEach((m, i) => {
+      const statusIcon = m.status === 'selesai' ? '✅' : m.status === 'terlewat' ? '❌' : '⏳';
+      report += `\n  ${i+1}. ${statusIcon} ${m.materi}\n`;
+      report += `     Kategori: ${m.kategori} | Waktu: ${m.waktu} | Jadwal: ${formatDate(m.jadwal)}\n`;
+      if (m.catatan) report += `     Catatan: ${m.catatan}\n`;
+    });
+
+    report += `\n${'═'.repeat(48)}\n`;
+    report += `Diekspor dari (مشكاة) — Platform Murojaah Santri\n`;
+    report += `${getMiladiDate()} / ${getHijriDate()}\n`;
+
+    downloadTextFile(`Laporan-Murojaah-${bulan}-${tahun}.txt`, report);
+    showToast('Laporan berhasil diekspor! 📊', 'success');
+  }
+</script>
+</body>
+</html>
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Kebijakan Privasi & Ketentuan Resmi</title>
+  <meta name="description" content="Kebijakan privasi resmi dan etika pembelajaran santri pada platform digital Misykah.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .privacy-container {
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .privacy-card {
+      background: var(--card-bg, #ffffff);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 36px 40px;
+      border: 1px solid var(--cream-dark);
+      line-height: 1.8;
+    }
+    .privacy-card h2 {
+      color: var(--primary-dark);
+      font-size: 1.25rem;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--cream-dark);
+      padding-bottom: 8px;
+    }
+    .privacy-card p, .privacy-card li {
+      font-size: 0.92rem;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .privacy-card ul {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body style="background:var(--body-bg);">
+
+<div class="privacy-container">
+  <!-- Brand Header -->
+  <div style="text-align:center;margin-bottom:28px;">
+    <a href="index.html" style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;">
+      <span class="font-arabic" style="font-size:2.4rem;color:var(--gold);font-weight:700;">مِشْكَاة</span>
+      <span style="font-size:1.3rem;font-weight:700;color:var(--primary-dark);letter-spacing:1px;">(مشكاة) — MISYKAH</span>
+      <span style="font-size:0.8rem;color:var(--text-muted);">Platform Resmi Murojaah & Pembelajaran Santri</span>
+    </a>
+  </div>
+
+  <div class="privacy-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <h1 style="font-size:1.6rem;color:var(--primary-dark);font-weight:700;">📜 Kebijakan Privasi & Piagam Santri</h1>
+      <a href="index.html" class="btn btn-primary btn-sm">← Kembali ke Beranda</a>
+    </div>
+    <p style="font-size:0.84rem;color:var(--text-muted);">Terakhir diperbarui: 24 Oktober 2026</p>
+
+    <div class="quote-block my-3" style="margin:20px 0;">
+      <div class="quote-arabic">إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى</div>
+      <div class="quote-indo">"Sesungguhnya setiap amalan tergantung pada niatnya, dan setiap orang akan mendapatkan sesuai apa yang ia niatkan."</div>
+      <div class="quote-source">— H.R. Bukhari & Muslim</div>
+    </div>
+
+    <h2>🔒 1. Kedaulatan & Keamanan Data Pengguna</h2>
+    <p>Platform <strong>(مشكاة)</strong> dirancang dengan prinsip perlindungan privasi tertinggi (*Privacy-First Architecture*):</p>
+    <ul>
+      <li><strong>Penyimpanan Lokal Mandiri:</strong> Seluruh riwayat hafalan murojaah, catatan faedah ilmiah, target bulanan, serta file rekaman audio muhadharah dan buku PDF disimpan secara aman di peramban pengguna memanfaatkan <em>Web LocalStorage</em> dan <em>IndexedDB Blob Storage</em> berstandar W3C.</li>
+      <li><strong>Enkripsi Sandi Terstandar:</strong> Kata sandi akun santri diproses secara kriptografis menggunakan algoritma <strong>SHA-256 (Web Crypto API)</strong> pada sisi klien sebelum diverifikasi.</li>
+      <li><strong>Bebas Pelacak Pihak Ketiga:</strong> Platform ini tidak memuat skrip pelacak komersial, iklan berbayar, maupun penjualan data santri kepada pihak manapun.</li>
+    </ul>
+
+    <h2>🏫 2. Ketertiban Halaqah & Grup Kelas</h2>
+    <p>Dalam memanfaatkan fitur <strong>Grup Kelas Belajar</strong> dan <strong>Ruang Halaqah</strong>:</p>
+    <ul>
+      <li>Pengampu dan santri diwajibkan menjaga adab kesantrian, kesopanan dalam bertutur kata, serta saling tolong-menolong dalam kebaikan.</li>
+      <li>Kode akses kelas bersifat aman dan merupakan amanah untuk dibagikan kepada santri yang berhak.</li>
+      <li>Setiap pengguna berhak membersihkan atau menghapus sesi halaqah yang sudah usai atau dirasa tidak valid demi menjaga kerapian majelis.</li>
+    </ul>
+
+    <h2>📚 3. Hak Cipta & Integritas Sumber Ilmu</h2>
+    <p>Penuntut ilmu senantiasa menghormati para ulama dan penulis kitab:</p>
+    <ul>
+      <li>Unggahan buku digital (PDF) dan audio muhadharah diperuntukkan bagi kemaslahatan murojaah pribadi dan thalabul ilmi yang sah.</li>
+      <li>Pada kolom <em>Faidah Ilmu</em>, cantumkan sumber rujukan atau nama asatidzah/kitab guna menjaga amanah ilmiah (*Nisbatul ilmi ila ahlihi*).</li>
+    </ul>
+
+    <h2>🌐 4. Dukungan Penggunaan Resmi</h2>
+    <p>Platform ini dapat diakses secara resmi melalui peramban modern di komputer, tablet, maupun telepon genggam cerdas dengan dukungan mode Progressive Web App (PWA) tanpa dipungut biaya lisensi.</p>
+
+    <div style="text-align:center;margin-top:36px;padding-top:20px;border-top:1px dashed var(--cream-dark);">
+      <p style="font-size:0.85rem;color:var(--text-muted);">Ada pertanyaan atau masukan untuk pengembangan resmi platform (مشكاة)?</p>
+      <a href="mailto:admin@misykah.id" class="btn btn-outline btn-sm mt-1">📧 Hubungi Pengembang & Asatidzah</a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;font-size:0.8rem;color:var(--text-muted);">
+    &copy; 2026 (مشكاة) Misykah — Platform Resmi Santri Digital.
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
+
+User-agent: *
+Allow: /
+
+Sitemap: https://misykah.id/sitemap.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://misykah.id/</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://misykah.id/index.html</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://misykah.id/privacy.html</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
+
+// ============================================================
+// (مشكاة) — Service Worker Resmi
+// Offline First Cache & Asset Management
+// ============================================================
+
+const CACHE_NAME = 'misykah-v1.2.0';
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './dashboard.html',
+  './murojaah.html',
+  './muhadharah.html',
+  './books.html',
+  './belajar.html',
+  './faidah.html',
+  './privacy.html',
+  './assets/css/style.css',
+  './assets/js/app.js',
+  './assets/icons/logo.svg',
+  './favicon.svg',
+  './manifest.json'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(STATIC_ASSETS);
+    }).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  // Only cache GET requests
+  if (event.request.method !== 'GET') return;
+  // Ignore chrome-extension or external analytics
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        // Fetch in background to update cache (Stale-While-Revalidate)
+        fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+          }
+        }).catch(() => {});
+        return cachedResponse;
+      }
+      return fetch(event.request).then(networkResponse => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+        return networkResponse;
+      });
+    }).catch(() => {
+      // Offline fallback
+      const acceptHeader = event.request.headers.get('accept') || '';
+      if (acceptHeader.includes('text/html')) {
+        return caches.match('./dashboard.html').then(res => res || caches.match('./index.html'));
+      }
+    })
+  );
+});
+
+{
+  "version": 2,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Belajar Bersama & Grup Kelas</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item active"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">👥 Belajar Bersama & Grup Kelas (مذاكرة جماعية)</div>
+        <div class="page-subtitle">Saling menyimak hafalan, ikuti kelas kajian privat via kode akses, dan diskusi ilmiah bersama kawan santri</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ</div>
+      <div class="quote-indo">"Dan tolong-menolonglah kamu dalam (mengerjakan) kebajikan dan takwa."</div>
+      <div class="quote-source">— Q.S. Al-Ma'idah: 2</div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="halaqah-tabs">
+      <button class="halaqah-tab active" id="tabKelas" onclick="switchHalaqahTab('kelas')">🏫 Grup Kelas Belajar</button>
+      <button class="halaqah-tab" id="tabHalaqah" onclick="switchHalaqahTab('halaqah')">🕌 Ruang Halaqah Murojaah</button>
+      <button class="halaqah-tab" id="tabTasmi" onclick="switchHalaqahTab('tasmi')">🎧 Partner Tasmi' (Sima'an)</button>
+      <button class="halaqah-tab" id="tabForum" onclick="switchHalaqahTab('forum')">💬 Forum Ilmiah Santri</button>
+    </div>
+
+    <!-- SECTION 1: GRUP KELAS BELAJAR (KODE AKSES) -->
+    <div id="sectionKelas">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--primary-dark);font-weight:700;">🏫 Grup Kelas & Komunitas Santri</h3>
+          <p style="font-size:0.83rem;color:var(--text-muted);">Gabung ke kelas khusus menggunakan kode unik akses atau buat grup belajar baru.</p>
+        </div>
+        <div class="flex gap-1 flex-wrap">
+          <button class="btn btn-outline btn-sm" onclick="openJoinKelasModal()">🔑 Masuk via Kode</button>
+          <button class="btn btn-primary btn-sm" onclick="openNewKelasModal()">+ Buat Kelas Baru</button>
+        </div>
+      </div>
+      <div class="halaqah-grid" id="kelasGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SECTION 2: RUANG HALAQAH UMUM -->
+    <div id="sectionHalaqah" class="d-none">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--primary-dark);font-weight:700;">🕌 Ruang Halaqah Murojaah Terbuka</h3>
+          <p style="font-size:0.83rem;color:var(--text-muted);">Sesi murojaah bersama santri untuk mengulang hafalan per juz atau kitab.</p>
+        </div>
+        <div class="flex gap-1 flex-wrap">
+          <button class="btn btn-outline btn-sm" onclick="clearAllHalaqah()" title="Hapus semua halaqah yang ada">🗑️ Bersihkan Semua</button>
+          <button class="btn btn-primary btn-sm" onclick="openNewHalaqahModal()">+ Buat Halaqah Baru</button>
+        </div>
+      </div>
+      <div class="halaqah-grid" id="halaqahGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SECTION 3: PARTNER TASMI -->
+    <div id="sectionTasmi" class="d-none">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--primary-dark);font-weight:700;">🎧 Partner Tasmi' & Sima'an</h3>
+          <p style="font-size:0.83rem;color:var(--text-muted);">Cari teman santri untuk saling menyimak hafalan Al-Qur'an dan mutun ilmiah secara berpasangan.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openNewTasmiModal()">🤝 Ajukan Partner Tasmi'</button>
+      </div>
+      <div class="halaqah-grid" id="tasmiGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SECTION 4: FORUM ILMIAH -->
+    <div id="sectionForum" class="d-none">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--primary-dark);font-weight:700;">💬 Forum Tanya Jawab & Diskusi Ilmiah</h3>
+          <p style="font-size:0.83rem;color:var(--text-muted);">Diskusikan kemusykilan tajwid, kaidah nahwu/sharaf, atau materi murojaah yang sedang dipelajari.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openNewQuestionModal()">✍️ Ajukan Pertanyaan</button>
+      </div>
+      <div id="forumContainer">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL: BUAT KELAS BARU -->
+<div class="modal-overlay" id="kelasModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title">🏫 Buat Grup Kelas Belajar Baru</div>
+      <button class="modal-close" onclick="closeModal('kelasModal')">✕</button>
+    </div>
+    <form onsubmit="handleCreateKelas(event)">
+      <div class="form-group">
+        <label class="form-label">Nama Kelas / Majelis *</label>
+        <input type="text" id="kelasNama" class="form-control" placeholder="Contoh: Kelas Intensif Kitab Al-Jurumiyyah" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pemateri / Pengampu *</label>
+        <input type="text" id="kelasPemateri" class="form-control" placeholder="Contoh: Ustadz Daffa" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kode Akses Unik (Password Kelas) *</label>
+        <input type="text" id="kelasKode" class="form-control" placeholder="Contoh: JURUM2026" style="text-transform:uppercase;letter-spacing:1px;font-weight:600;" required>
+        <p class="form-hint">Bagikan kode unik ini kepada kawan santri yang hendak diundang ke kelas.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link / Lokasi Pertemuan Online</label>
+        <input type="text" id="kelasLink" class="form-control" placeholder="Contoh: https://meet.google.com/abc-xyz atau Masjid Lt. 2">
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('kelasModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">🚀 Buka Grup Kelas</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: MASUK VIA KODE AKSES -->
+<div class="modal-overlay" id="joinKelasModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Gabung Kelas via Kode Akses</div>
+      <button class="modal-close" onclick="closeModal('joinKelasModal')">✕</button>
+    </div>
+    <form onsubmit="handleJoinByCode(event)">
+      <div class="form-group">
+        <label class="form-label">Masukkan Kode Akses Kelas *</label>
+        <input type="text" id="inputKodeAkses" class="form-control" placeholder="Contoh: JURUM2026" style="text-transform:uppercase;letter-spacing:2px;font-weight:700;text-align:center;font-size:1.1rem;" required>
+        <p class="form-hint">Dapatkan kode akses dari pengampu atau pembuat kelas.</p>
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('joinKelasModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">Gabung Kelas</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: BUAT HALAQAH BARU -->
+<div class="modal-overlay" id="halaqahModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div class="modal-title">🕌 Buat Halaqah Murojaah Baru</div>
+      <button class="modal-close" onclick="closeModal('halaqahModal')">✕</button>
+    </div>
+    <form onsubmit="handleCreateHalaqah(event)">
+      <div class="form-group">
+        <label class="form-label">Nama Halaqah *</label>
+        <input type="text" id="halaqahJudul" class="form-control" placeholder="Contoh: Halaqah Murojaah Juz 30 Bersama" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Materi / Kitab *</label>
+        <input type="text" id="halaqahMateri" class="form-control" placeholder="Contoh: Al-Qur'an Juz 30 / Matan Al-Jurumiyyah" required>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Hari & Jam *</label>
+          <input type="text" id="halaqahWaktu" class="form-control" placeholder="Contoh: Ba'da Ashar (16:00)" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kapasitas Maksimal</label>
+          <input type="number" id="halaqahMax" class="form-control" value="8" min="2" max="50">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lokasi / Tautan Pertemuan</label>
+        <input type="text" id="halaqahLink" class="form-control" placeholder="Contoh: Masjid Lantai 2 / link Google Meet">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status Sesi</label>
+        <select id="halaqahStatus" class="form-control">
+          <option value="ongoing">Sedang Berlangsung 🟢</option>
+          <option value="upcoming" selected>Akan Datang ⏳</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan / Deskripsi Singkat</label>
+        <textarea id="halaqahDeskripsi" class="form-control" rows="2" placeholder="Tata tertib atau target hafalan sesi ini..."></textarea>
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('halaqahModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">🚀 Buka Halaqah</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: AJUKAN PARTNER TASMI -->
+<div class="modal-overlay" id="tasmiModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title">🤝 Cari Teman Tasmi' (Sima'an)</div>
+      <button class="modal-close" onclick="closeModal('tasmiModal')">✕</button>
+    </div>
+    <form onsubmit="handleCreateTasmi(event)">
+      <div class="form-group">
+        <label class="form-label">Materi Setoran Hafalan *</label>
+        <input type="text" id="tasmiMateri" class="form-control" placeholder="Contoh: Surat Al-Kahfi ayat 1-50 / Hadits Arbain 1-15" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Waktu Murojaah *</label>
+        <input type="text" id="tasmiWaktu" class="form-control" placeholder="Contoh: Besok Ba'da Shubuh / Malam ini pukul 20.00" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan Tambahan</label>
+        <textarea id="tasmiCatatan" class="form-control" rows="2" placeholder="Contoh: Mau saling menyimak bergantian 1 lembar 1 lembar"></textarea>
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('tasmiModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">📢 Publikasikan Permintaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: AJUKAN PERTANYAAN FORUM -->
+<div class="modal-overlay" id="forumModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div class="modal-title">✍️ Ajukan Pertanyaan Materi</div>
+      <button class="modal-close" onclick="closeModal('forumModal')">✕</button>
+    </div>
+    <form onsubmit="handleCreateQuestion(event)">
+      <div class="form-group">
+        <label class="form-label">Mata Pelajaran / Topik *</label>
+        <input type="text" id="forumTopik" class="form-control" placeholder="Contoh: Tajwid - Hukum Mad Lazim / Nahwu - Isim Fa'il" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pertanyaan Anda *</label>
+        <textarea id="forumPertanyaan" class="form-control" rows="4" placeholder="Tuliskan pertanyaan materi murojaah yang belum dipahami..." required></textarea>
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('forumModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">Kirim Pertanyaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+  initSidebar();
+
+  // Tab switching
+  function switchHalaqahTab(tab) {
+    document.querySelectorAll('.halaqah-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('sectionKelas').classList.add('d-none');
+    document.getElementById('sectionHalaqah').classList.add('d-none');
+    document.getElementById('sectionTasmi').classList.add('d-none');
+    document.getElementById('sectionForum').classList.add('d-none');
+
+    if (tab === 'kelas') {
+      document.getElementById('tabKelas').classList.add('active');
+      document.getElementById('sectionKelas').classList.remove('d-none');
+      renderKelas();
+    } else if (tab === 'halaqah') {
+      document.getElementById('tabHalaqah').classList.add('active');
+      document.getElementById('sectionHalaqah').classList.remove('d-none');
+      renderHalaqah();
+    } else if (tab === 'tasmi') {
+      document.getElementById('tabTasmi').classList.add('active');
+      document.getElementById('sectionTasmi').classList.remove('d-none');
+      renderTasmi();
+    } else if (tab === 'forum') {
+      document.getElementById('tabForum').classList.add('active');
+      document.getElementById('sectionForum').classList.remove('d-none');
+      renderForum();
+    }
+  }
+
+  // Initial Seed Data (only once)
+  function initSeedData() {
+    if (localStorage.getItem('misykah_seed_initialized')) {
+      return;
+    }
+    localStorage.setItem('misykah_seed_initialized', 'true');
+
+    // Seed classes
+    let kelasList = getGlobalData('classes');
+    if (!kelasList || kelasList.length === 0) {
+      kelasList = [
+        {
+          id: 'cls_1',
+          nama: 'Kajian Kitab Al-Jurumiyyah',
+          pemateri: 'Ustadz Daffa',
+          kode: 'JURUM2026',
+          link: 'https://meet.google.com/misykah-nahwu',
+          creatorName: 'Ustadz Daffa',
+          creatorId: 'adm_1',
+          anggota: ['Ustadz Daffa', 'Ahmad Ridwan', session.name]
+        },
+        {
+          id: 'cls_2',
+          nama: 'Halaqah Murojaah Juz 30 & 29',
+          pemateri: 'K.H. Mansyur',
+          kode: 'TAHFIDZ30',
+          link: 'https://zoom.us/j/misykah-hafalan',
+          creatorName: 'K.H. Mansyur',
+          creatorId: 'adm_2',
+          anggota: ['Irbah', 'Bintang Khalil']
+        }
+      ];
+      saveGlobalData('classes', kelasList);
+    }
+  }
+
+  initSeedData();
+
+  // ── KELAS METHODS ──
+  function openNewKelasModal() {
+    document.getElementById('kelasNama').value = '';
+    document.getElementById('kelasPemateri').value = '';
+    document.getElementById('kelasKode').value = '';
+    document.getElementById('kelasLink').value = '';
+    openModal('kelasModal');
+  }
+
+  function openJoinKelasModal() {
+    document.getElementById('inputKodeAkses').value = '';
+    openModal('joinKelasModal');
+  }
+
+  function handleCreateKelas(e) {
+    e.preventDefault();
+    const nama = document.getElementById('kelasNama').value.trim();
+    const pemateri = document.getElementById('kelasPemateri').value.trim();
+    const kode = document.getElementById('kelasKode').value.trim().toUpperCase();
+    const link = document.getElementById('kelasLink').value.trim();
+
+    let list = getGlobalData('classes');
+    if (list.some(k => k.kode === kode)) {
+      showToast('Kode kelas sudah digunakan, silakan buat kode unik lain!', 'error');
+      return;
+    }
+
+    list.unshift({
+      id: generateId(),
+      nama,
+      pemateri,
+      kode,
+      link,
+      creatorName: session.name,
+      creatorId: session.userId,
+      anggota: [session.name]
+    });
+
+    saveGlobalData('classes', list);
+    closeModal('kelasModal');
+    showToast('Grup Kelas berhasil dibuat! 🏫', 'success');
+    renderKelas();
+  }
+
+  function handleJoinByCode(e) {
+    e.preventDefault();
+    const kodeInput = document.getElementById('inputKodeAkses').value.trim().toUpperCase();
+    let list = getGlobalData('classes');
+    const targetKelas = list.find(k => k.kode === kodeInput);
+
+    if (!targetKelas) {
+      showToast('Kode kelas tidak ditemukan, periksa kembali kode Anda!', 'error');
+      return;
+    }
+
+    if (targetKelas.anggota.includes(session.name)) {
+      showToast('Anda sudah menjadi anggota di kelas ini.', 'info');
+      closeModal('joinKelasModal');
+      return;
+    }
+
+    targetKelas.anggota.push(session.name);
+    saveGlobalData('classes', list);
+    closeModal('joinKelasModal');
+    showToast(`Berhasil bergabung ke kelas "${targetKelas.nama}"! 🎉`, 'success');
+    renderKelas();
+  }
+
+  function joinDirectKelas(id) {
+    let list = getGlobalData('classes');
+    const target = list.find(x => x.id === id);
+    if (target && !target.anggota.includes(session.name)) {
+      target.anggota.push(session.name);
+      saveGlobalData('classes', list);
+      showToast('Berhasil bergabung ke kelas! 🎉', 'success');
+      renderKelas();
+    }
+  }
+
+  function leaveKelas(id) {
+    let list = getGlobalData('classes');
+    const target = list.find(x => x.id === id);
+    if (target) {
+      const idx = target.anggota.indexOf(session.name);
+      if (idx !== -1) {
+        target.anggota.splice(idx, 1);
+        saveGlobalData('classes', list);
+        showToast('Anda telah keluar dari kelas ini.', 'info');
+        renderKelas();
+      }
+    }
+  }
+
+  function deleteKelas(id) {
+    if (!confirm('Yakin ingin menghapus grup kelas ini?')) return;
+    let list = getGlobalData('classes');
+    list = list.filter(x => x.id !== id);
+    saveGlobalData('classes', list);
+    showToast('Grup kelas berhasil dihapus 🗑️', 'info');
+    renderKelas();
+  }
+
+  function renderKelas() {
+    const list = getGlobalData('classes');
+    const grid = document.getElementById('kelasGrid');
+    if (!grid) return;
+
+    if (list.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;padding:40px 20px;">
+          <span class="empty-icon">🏫</span>
+          <p style="font-weight:600;">Belum ada grup kelas belajar</p>
+          <span style="font-size:0.83rem;color:var(--text-muted);">Gunakan tombol di atas untuk membuat kelas baru atau gabung via kode akses.</span>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(k => {
+      const isMember = k.anggota.includes(session.name);
+      return `
+        <div class="halaqah-card">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="badge badge-gold">🔑 Kode: ${k.kode}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">👥 ${k.anggota.length} Anggota</span>
+            </div>
+            <h4 style="font-size:1.05rem;color:var(--primary-dark);margin-bottom:6px;font-weight:700;">🏫 ${k.nama}</h4>
+            <div style="font-size:0.83rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+              <div>👤 <strong>Pengampu:</strong> ${k.pemateri}</div>
+              ${k.link ? `<div>📍 <strong>Link Pertemuan:</strong> <a href="${k.link}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);text-decoration:underline;">Buka Tautan</a></div>` : ''}
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">Daftar Anggota Santri:</div>
+            <div class="participant-list mb-3">
+              ${k.anggota.map(a => `<span class="participant-chip">👤 ${a}</span>`).join('')}
+            </div>
+          </div>
+          <div class="flex justify-between items-center mt-3" style="border-top:1px solid var(--cream-dark);padding-top:12px;">
+            ${isMember ? `
+              <span class="text-success" style="font-size:0.82rem;font-weight:700;">✓ Terdaftar sebagai Anggota</span>
+              <div class="flex gap-1">
+                <button class="btn btn-outline btn-sm" onclick="leaveKelas('${k.id}')" title="Keluar Kelas">Keluar</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteKelas('${k.id}')" title="Hapus Kelas">🗑️</button>
+              </div>
+            ` : `
+              <button class="btn btn-primary btn-sm" onclick="joinDirectKelas('${k.id}')">Gabung Kelas</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteKelas('${k.id}')" title="Hapus Kelas">🗑️</button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── HALAQAH METHODS ──
+  function openNewHalaqahModal() {
+    document.getElementById('halaqahJudul').value = '';
+    document.getElementById('halaqahMateri').value = '';
+    document.getElementById('halaqahWaktu').value = '';
+    document.getElementById('halaqahMax').value = '8';
+    document.getElementById('halaqahLink').value = '';
+    document.getElementById('halaqahDeskripsi').value = '';
+    openModal('halaqahModal');
+  }
+
+  function handleCreateHalaqah(e) {
+    e.preventDefault();
+    const judul = document.getElementById('halaqahJudul').value.trim();
+    const materi = document.getElementById('halaqahMateri').value.trim();
+    const waktu = document.getElementById('halaqahWaktu').value.trim();
+    const max = parseInt(document.getElementById('halaqahMax').value) || 8;
+    const link = document.getElementById('halaqahLink').value.trim();
+    const status = document.getElementById('halaqahStatus').value;
+    const deskripsi = document.getElementById('halaqahDeskripsi').value.trim();
+
+    let list = getGlobalData('halaqah_rooms');
+    list.unshift({
+      id: generateId(),
+      judul, materi, waktu, max, link, status, deskripsi,
+      creatorName: session.name,
+      creatorId: session.userId,
+      participants: [session.name]
+    });
+    saveGlobalData('halaqah_rooms', list);
+    closeModal('halaqahModal');
+    showToast('Ruang Halaqah berhasil dibuka! 🕌', 'success');
+    renderHalaqah();
+  }
+
+  function toggleJoinHalaqah(id) {
+    let list = getGlobalData('halaqah_rooms');
+    const h = list.find(x => x.id === id);
+    if (!h) return;
+
+    const myName = session.name;
+    const idx = h.participants.indexOf(myName);
+    if (idx !== -1) {
+      h.participants.splice(idx, 1);
+      showToast('Anda telah keluar dari halaqah ini', 'info');
+    } else {
+      if (h.participants.length >= h.max) {
+        showToast('Kapasitas halaqah sudah penuh!', 'warning');
+        return;
+      }
+      h.participants.push(myName);
+      showToast('Barakallahu fiik, Anda berhasil bergabung ke halaqah! 🎉', 'success');
+    }
+    saveGlobalData('halaqah_rooms', list);
+    renderHalaqah();
+  }
+
+  function deleteHalaqah(id) {
+    if (!confirm('Yakin ingin menghapus ruang halaqah ini?')) return;
+    let list = getGlobalData('halaqah_rooms');
+    list = list.filter(x => x.id !== id);
+    saveGlobalData('halaqah_rooms', list);
+    showToast('Halaqah telah dihapus 🗑️', 'info');
+    renderHalaqah();
+  }
+
+  function clearAllHalaqah() {
+    if (!confirm('Yakin ingin menghapus SEMUA daftar halaqah yang ada?')) return;
+    saveGlobalData('halaqah_rooms', []);
+    showToast('Semua halaqah telah dibersihkan', 'info');
+    renderHalaqah();
+  }
+
+  function renderHalaqah() {
+    const list = getGlobalData('halaqah_rooms');
+    const grid = document.getElementById('halaqahGrid');
+    if (!grid) return;
+
+    if (list.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 40px 20px;">
+          <span class="empty-icon">🕌</span>
+          <p style="font-weight:600;">Belum ada ruang halaqah aktif</p>
+          <button class="btn btn-primary btn-sm mt-2" onclick="openNewHalaqahModal()">+ Buat Halaqah Sekarang</button>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(h => {
+      const isJoined = h.participants.includes(session.name);
+      const statusLabel = h.status === 'ongoing' ? 'Sedang Berlangsung' : h.status === 'done' ? 'Selesai' : 'Akan Datang';
+      const statusClass = h.status === 'ongoing' ? 'status-ongoing' : h.status === 'done' ? 'status-done' : 'status-upcoming';
+
+      return `
+        <div class="halaqah-card">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="halaqah-status-pill ${statusClass}">${statusLabel}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">👥 ${h.participants.length}/${h.max} Santri</span>
+            </div>
+            <h4 style="font-size:1.05rem;color:var(--primary-dark);margin-bottom:6px;">${h.judul}</h4>
+            <p style="font-size:0.83rem;color:var(--primary);font-weight:600;margin-bottom:8px;">📖 ${h.materi}</p>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">
+              <div>⏰ <strong>Waktu:</strong> ${h.waktu}</div>
+              <div>👤 <strong>Fasilitator:</strong> ${h.creatorName}</div>
+              ${h.link ? `<div>📍 <strong>Lokasi/Link:</strong> <span style="color:var(--primary);">${h.link}</span></div>` : ''}
+            </div>
+            ${h.deskripsi ? `<p style="font-size:0.82rem;color:#444;background:#fbfbf7;padding:8px 10px;border-radius:6px;margin-bottom:10px;">${h.deskripsi}</p>` : ''}
+
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Peserta Terdaftar:</div>
+            <div class="participant-list">
+              ${h.participants.map(p => `<span class="participant-chip">👤 ${p}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center mt-auto" style="border-top:1px solid var(--cream-dark);padding-top:12px;">
+            <button class="btn btn-sm ${isJoined ? 'btn-outline' : 'btn-primary'}" onclick="toggleJoinHalaqah('${h.id}')">
+              ${isJoined ? '✓ Terdaftar (Keluar)' : '🤝 Gabung Halaqah'}
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteHalaqah('${h.id}')" title="Hapus Halaqah">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── TASMI' METHODS ──
+  function openNewTasmiModal() {
+    document.getElementById('tasmiMateri').value = '';
+    document.getElementById('tasmiWaktu').value = '';
+    document.getElementById('tasmiCatatan').value = '';
+    openModal('tasmiModal');
+  }
+
+  function handleCreateTasmi(e) {
+    e.preventDefault();
+    const materi = document.getElementById('tasmiMateri').value.trim();
+    const waktu = document.getElementById('tasmiWaktu').value.trim();
+    const catatan = document.getElementById('tasmiCatatan').value.trim();
+
+    let list = getGlobalData('tasmi_requests');
+    list.unshift({
+      id: generateId(),
+      materi, waktu, catatan,
+      requesterName: session.name,
+      requesterId: session.userId,
+      partnerName: null,
+      status: 'open'
+    });
+    saveGlobalData('tasmi_requests', list);
+    closeModal('tasmiModal');
+    showToast('Permintaan partner tasmi\' berhasil dipublikasikan! 📢', 'success');
+    renderTasmi();
+  }
+
+  function acceptTasmi(id) {
+    let list = getGlobalData('tasmi_requests');
+    const t = list.find(x => x.id === id);
+    if (!t) return;
+    if (t.requesterId === session.userId) {
+      showToast('Ini permintaan yang Anda buat sendiri', 'info');
+      return;
+    }
+    t.partnerName = session.name;
+    t.status = 'matched';
+    saveGlobalData('tasmi_requests', list);
+    showToast(`Masya Allah, Anda telah menjadi partner tasmi' ${t.requesterName}! 🎉`, 'success');
+    renderTasmi();
+  }
+
+  function deleteTasmi(id) {
+    if (!confirm('Yakin ingin menghapus permintaan partner tasmi ini?')) return;
+    let list = getGlobalData('tasmi_requests');
+    list = list.filter(x => x.id !== id);
+    saveGlobalData('tasmi_requests', list);
+    showToast('Permintaan tasmi dihapus 🗑️', 'info');
+    renderTasmi();
+  }
+
+  function renderTasmi() {
+    const list = getGlobalData('tasmi_requests');
+    const grid = document.getElementById('tasmiGrid');
+    if (!grid) return;
+
+    if (list.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 40px 20px;">
+          <span class="empty-icon">🤝</span>
+          <p style="font-weight:600;">Belum ada permohonan partner tasmi'</p>
+          <button class="btn btn-primary btn-sm mt-2" onclick="openNewTasmiModal()">Ajukan Sekarang</button>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(t => `
+      <div class="halaqah-card">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="badge ${t.status === 'matched' ? 'badge-success' : 'badge-warning'}">
+              ${t.status === 'matched' ? '✓ Sudah Ada Partner' : '⏳ Mencari Teman'}
+            </span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">👤 ${t.requesterName}</span>
+          </div>
+          <h4 style="font-size:1.05rem;color:var(--primary-dark);margin-bottom:6px;">📖 ${t.materi}</h4>
+          <div style="font-size:0.83rem;color:var(--text-muted);margin-bottom:8px;">
+            <div>⏰ <strong>Jadwal:</strong> ${t.waktu}</div>
+            ${t.catatan ? `<div class="mt-1" style="background:#fdfcf7;padding:6px 10px;border-radius:6px;border-left:3px solid var(--gold);">${t.catatan}</div>` : ''}
+          </div>
+        </div>
+
+        <div class="mt-auto" style="border-top:1px solid var(--cream-dark);padding-top:12px;display:flex;gap:8px;align-items:center;">
+          ${t.status === 'matched' ? `
+            <div style="font-size:0.82rem;color:var(--primary);font-weight:600;flex:1;">
+              ✨ Disimak oleh: <strong>${t.partnerName}</strong>
+            </div>
+          ` : `
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="acceptTasmi('${t.id}')">
+              🤝 Siap Menyimak
+            </button>
+          `}
+          <button class="btn btn-danger btn-sm" onclick="deleteTasmi('${t.id}')" title="Hapus Permintaan">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── FORUM METHODS ──
+  function openNewQuestionModal() {
+    document.getElementById('forumTopik').value = '';
+    document.getElementById('forumPertanyaan').value = '';
+    openModal('forumModal');
+  }
+
+  function handleCreateQuestion(e) {
+    e.preventDefault();
+    const topik = document.getElementById('forumTopik').value.trim();
+    const pertanyaan = document.getElementById('forumPertanyaan').value.trim();
+
+    let list = getGlobalData('forum_questions');
+    list.unshift({
+      id: generateId(),
+      topik,
+      pertanyaan,
+      authorName: session.name,
+      authorId: session.userId,
+      tanggal: todayStr(),
+      answers: []
+    });
+    saveGlobalData('forum_questions', list);
+    closeModal('forumModal');
+    showToast('Pertanyaan berhasil diunggah ke forum! 💬', 'success');
+    renderForum();
+  }
+
+  function submitAnswer(questionId) {
+    const input = document.getElementById(`replyInput_${questionId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    let list = getGlobalData('forum_questions');
+    const q = list.find(x => x.id === questionId);
+    if (!q) return;
+
+    if (!q.answers) q.answers = [];
+    q.answers.push({
+      authorName: session.name,
+      text: text,
+      tanggal: todayStr()
+    });
+
+    saveGlobalData('forum_questions', list);
+    input.value = '';
+    showToast('Jawaban/tanggapan berhasil dikirim! ✨', 'success');
+    renderForum();
+  }
+
+  function deleteQuestion(id) {
+    if (!confirm('Yakin ingin menghapus pertanyaan ini dari forum?')) return;
+    let list = getGlobalData('forum_questions');
+    list = list.filter(x => x.id !== id);
+    saveGlobalData('forum_questions', list);
+    showToast('Pertanyaan dihapus dari forum 🗑️', 'info');
+    renderForum();
+  }
+
+  function renderForum() {
+    const list = getGlobalData('forum_questions');
+    const container = document.getElementById('forumContainer');
+    if (!container) return;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding: 40px 20px;">
+          <span class="empty-icon">💬</span>
+          <p style="font-weight:600;">Belum ada diskusi materi</p>
+          <button class="btn btn-primary btn-sm mt-2" onclick="openNewQuestionModal()">Ajukan Pertanyaan Pertama</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(q => `
+      <div class="discussion-card">
+        <div class="discussion-header">
+          <div class="avatar-sm">${q.authorName.charAt(0).toUpperCase()}</div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:0.95rem;color:var(--primary-dark);">${q.authorName}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${formatDate(q.tanggal)} • <span style="color:var(--primary);font-weight:500;">${q.topik}</span></div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${q.id}')" title="Hapus Pertanyaan">🗑️</button>
+        </div>
+        <div style="font-size:0.92rem;color:inherit;line-height:1.6;margin-bottom:14px;background:#fcfbf6;padding:12px;border-radius:8px;">
+          ${q.pertanyaan.replace(/\n/g, '<br>')}
+        </div>
+
+        <!-- Answers -->
+        <div style="margin-left:16px;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;">
+            💡 Tanggapan / Jawaban (${(q.answers || []).length}):
+          </div>
+          ${(q.answers || []).map(ans => `
+            <div class="comment-box">
+              <div class="flex items-center justify-between mb-1">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--primary);">${ans.authorName}</span>
+                <span style="font-size:0.72rem;color:var(--text-muted);">${ans.tanggal ? formatDate(ans.tanggal) : ''}</span>
+              </div>
+              <div style="font-size:0.85rem;color:inherit;line-height:1.5;">${ans.text}</div>
+            </div>
+          `).join('')}
+
+          <!-- Reply form -->
+          <div class="flex gap-1 mt-2">
+            <input type="text" id="replyInput_${q.id}" class="form-control" style="font-size:0.85rem;" placeholder="Tulis tanggapan atau penjelasan untuk membantu sesama penuntut ilmu...">
+            <button class="btn btn-primary btn-sm" onclick="submitAnswer('${q.id}')">Kirim</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Initial load
+  renderKelas();
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Perpustakaan Kitab Digital</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .pdf-modal { max-width: 95vw; width: 900px; max-height: 95vh; }
+    .pdf-frame { width: 100%; height: 75vh; border: none; border-radius: var(--border-radius-sm); background: #f0f0f0; }
+  </style>
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item active"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">📚 Perpustakaan Buku Digital</div>
+        <div class="page-subtitle">Koleksi kitab, buku keislaman, dan panduan murojaah PDF</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ</div>
+      <div class="quote-indo">"Sesungguhnya yang takut kepada Allah di antara hamba-hamba-Nya hanyalah para ulama."</div>
+      <div class="quote-source">— Q.S. Fatir: 28</div>
+    </div>
+
+    <!-- Storage Info Banner -->
+    <div style="background:rgba(26,92,56,0.08);border:1.5px solid var(--primary-light);border-radius:var(--border-radius-sm);padding:12px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center;">
+      <span style="font-size:1.4rem;flex-shrink:0;">🚀</span>
+      <div style="font-size:0.84rem;color:var(--text-dark);line-height:1.5;">
+        <strong>IndexedDB Blob Storage & Read-on-Demand Aktif:</strong> Mendukung upload kitab dan buku PDF berukuran besar (10MB, 50MB, 100MB+) secara read-on-demand tanpa batas kuota localStorage.
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <h3 style="color:var(--primary-dark);font-size:1rem;">📖 Koleksi Buku (<span id="bookCount">0</span>)</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalUpload')">⬆️ Upload Buku Baru</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari judul atau penulis..." oninput="renderList()">
+      </div>
+      <select class="form-control" id="filterKat" onchange="renderList()" style="width:auto;min-width:150px;">
+        <option value="">Semua Kategori</option>
+        <option value="Tafsir">Tafsir</option>
+        <option value="Hadits">Hadits</option>
+        <option value="Fiqh">Fiqh</option>
+        <option value="Sirah">Sirah</option>
+        <option value="Bahasa Arab">Bahasa Arab</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+    </div>
+
+    <div class="books-grid" id="bookGrid"></div>
+  </div>
+</main>
+
+<!-- Modal Upload Buku -->
+<div class="modal-overlay" id="modalUpload">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📚 Upload Buku Digital (PDF)</div>
+      <button class="modal-close" onclick="closeModal('modalUpload')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Judul Buku <span style="color:red">*</span></label>
+        <input type="text" id="inpJudul" class="form-control" placeholder="Judul buku atau kitab">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Penulis / Muallif <span style="color:red">*</span></label>
+          <input type="text" id="inpPenulis" class="form-control" placeholder="Nama penulis / pengarang">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="inpKategori" class="form-control">
+            <option value="Tafsir">Tafsir</option>
+            <option value="Hadits">Hadits</option>
+            <option value="Fiqh">Fiqh</option>
+            <option value="Sirah">Sirah</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi Singkat</label>
+        <textarea id="inpDeskripsi" class="form-control" placeholder="Ringkasan atau catatan seputar isi buku..." style="min-height:70px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pilih File PDF <span style="color:red">*</span></label>
+        <input type="file" id="inpFile" class="form-control" accept="application/pdf,.pdf" onchange="onFileSelect(this)">
+        <p class="form-hint">Mendukung file PDF ukuran besar (disimpan via IndexedDB Blob Storage).</p>
+      </div>
+      <div id="fileInfo" style="display:none;background:var(--cream-dark);border-radius:var(--border-radius-sm);padding:10px 14px;font-size:0.82rem;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalUpload')">Batal</button>
+      <button class="btn btn-primary" id="btnUpload" onclick="uploadBuku()">💾 Simpan Buku</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Baca PDF -->
+<div class="modal-overlay" id="modalBaca">
+  <div class="modal pdf-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="pdfTitle">📖 Membaca Buku</div>
+      <button class="modal-close" onclick="tutupPDF()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px;">
+      <iframe id="pdfFrame" class="pdf-frame" title="PDF Viewer"></iframe>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+  initSidebar();
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+
+  function getData() { return getUserData('books', session.userId); }
+  function saveData(d) { saveUserData('books', session.userId, d); }
+
+  let selectedFileObj = null;
+
+  const catColors = {
+    'Tafsir':      ['#1a5c38','#2d7a4f'],
+    'Hadits':      ['#7b341e','#a0522d'],
+    'Fiqh':        ['#1a3a5c','#2d5a7a'],
+    'Sirah':       ['#3d1a5c','#5c2d7a'],
+    'Bahasa Arab': ['#5c4a1a','#7a6530'],
+    'Lainnya':     ['#2c3e50','#34495e'],
+  };
+
+  function onFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedFileObj = file;
+    const sizeStr = MisykahDB.formatBytes(file.size);
+    const infoEl = document.getElementById('fileInfo');
+    infoEl.style.display = 'block';
+    infoEl.style.borderLeft = '3px solid var(--primary)';
+    infoEl.innerHTML = `📁 <strong>${file.name}</strong> — ${sizeStr} <span class="badge badge-success" style="font-size:0.7rem;margin-left:6px;">IndexedDB Blob</span>`;
+  }
+
+  async function uploadBuku() {
+    const judul    = document.getElementById('inpJudul').value.trim();
+    const penulis  = document.getElementById('inpPenulis').value.trim();
+    const kategori = document.getElementById('inpKategori').value;
+    const deskripsi = document.getElementById('inpDeskripsi').value.trim();
+
+    if (!judul) { showToast('Judul tidak boleh kosong!', 'error'); return; }
+    if (!penulis) { showToast('Nama penulis diperlukan!', 'error'); return; }
+    if (!selectedFileObj) { showToast('Pilih file PDF terlebih dahulu!', 'error'); return; }
+
+    const btn = document.getElementById('btnUpload');
+    btn.innerHTML = '<span class="loader"></span> Menyimpan ke IndexedDB...';
+    btn.disabled = true;
+
+    try {
+      const id = generateId();
+      // Store raw Blob / File in IndexedDB
+      await MisykahDB.saveFile(id, selectedFileObj, {
+        name: selectedFileObj.name,
+        type: 'application/pdf',
+        size: selectedFileObj.size
+      });
+
+      // Store lightweight metadata in localStorage
+      const item = {
+        id: id,
+        judul: judul,
+        penulis: penulis,
+        kategori: kategori,
+        deskripsi: deskripsi,
+        tanggal: todayStr(),
+        fileName: selectedFileObj.name,
+        fileSize: selectedFileObj.size,
+        fileType: 'application/pdf',
+        storage: 'indexeddb'
+      };
+
+      const data = getData();
+      data.unshift(item);
+      saveData(data);
+
+      closeModal('modalUpload');
+      resetForm();
+      showToast('Buku PDF berhasil disimpan via IndexedDB! 📚', 'success');
+      renderList();
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal menyimpan file PDF ke database browser.', 'error');
+    }
+
+    btn.innerHTML = '💾 Simpan Buku';
+    btn.disabled = false;
+  }
+
+  function resetForm() {
+    document.getElementById('inpJudul').value = '';
+    document.getElementById('inpPenulis').value = '';
+    document.getElementById('inpDeskripsi').value = '';
+    document.getElementById('inpFile').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    selectedFileObj = null;
+  }
+
+  let currentBlobUrl = null;
+
+  async function bacaBuku(id) {
+    const item = getData().find(b => b.id === id);
+    if (!item) return;
+    document.getElementById('pdfTitle').textContent = '📖 ' + item.judul;
+
+    if (currentBlobUrl) {
+      URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = null;
+    }
+
+    try {
+      // Read on demand from IndexedDB as Blob URL
+      let url = await MisykahDB.getFileUrl(id);
+
+      // Fallback for legacy base64 if existing
+      if (!url && item.fileData) {
+        const base64 = item.fileData.split(',')[1];
+        const byteChars = atob(base64);
+        const byteNums = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
+        const byteArr = new Uint8Array(byteNums);
+        const blob = new Blob([byteArr], { type: 'application/pdf' });
+        url = URL.createObjectURL(blob);
+      }
+
+      if (!url) {
+        showToast('File PDF tidak ditemukan di database.', 'error');
+        return;
+      }
+
+      currentBlobUrl = url;
+      document.getElementById('pdfFrame').src = currentBlobUrl;
+      openModal('modalBaca');
+    } catch (e) {
+      console.error(e);
+      showToast('Gagal memuat PDF dari database browser.', 'error');
+    }
+  }
+
+  function tutupPDF() {
+    closeModal('modalBaca');
+    document.getElementById('pdfFrame').src = '';
+    if (currentBlobUrl) {
+      URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = null;
+    }
+  }
+
+  async function hapus(id) {
+    if (!confirm('Hapus buku ini dari koleksi?')) return;
+    try {
+      await MisykahDB.deleteFile(id);
+    } catch(e) {
+      console.warn('Error deleting from IndexedDB:', e);
+    }
+    saveData(getData().filter(b => b.id !== id));
+    showToast('Buku dihapus.', 'info');
+    renderList();
+  }
+
+  function renderList() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const katF   = document.getElementById('filterKat').value;
+    const data = getData();
+    const filtered = data.filter(b =>
+      (!search || b.judul.toLowerCase().includes(search) || b.penulis.toLowerCase().includes(search) || (b.deskripsi||'').toLowerCase().includes(search)) &&
+      (!katF || b.kategori === katF)
+    ).sort((a,b) => b.tanggal > a.tanggal ? 1 : -1);
+
+    document.getElementById('bookCount').textContent = data.length;
+    const el = document.getElementById('bookGrid');
+
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">📚</span><h3>Belum ada buku</h3><p>Upload buku PDF pertama Anda</p></div>`;
+      return;
+    }
+
+    const catIcons = { Tafsir:'📗', Hadits:'📙', Fiqh:'📘', Sirah:'📕', 'Bahasa Arab':'📒', Lainnya:'📓' };
+
+    el.innerHTML = filtered.map(b => {
+      const colors = catColors[b.kategori] || catColors['Lainnya'];
+      const icon = catIcons[b.kategori] || '📖';
+      const sizeStr = b.fileSize ? MisykahDB.formatBytes(b.fileSize) : '';
+      return `
+      <div class="book-card">
+        <div class="book-cover" style="background:linear-gradient(145deg,${colors[0]},${colors[1]});">
+          <span class="book-cover-icon">${icon}</span>
+          <span class="book-cover-cat">${b.kategori}</span>
+        </div>
+        <div class="book-body">
+          <div class="book-title">${b.judul}</div>
+          <div class="book-author">✍️ ${b.penulis}</div>
+          ${b.deskripsi ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;line-height:1.4;">${b.deskripsi.length>80?b.deskripsi.slice(0,80)+'...':b.deskripsi}</div>` : ''}
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:10px;">📅 ${formatDate(b.tanggal)} ${sizeStr ? `• 💾 ${sizeStr}` : ''}</div>
+          <div class="book-actions">
+            <button class="btn btn-primary btn-sm" onclick="bacaBuku('${b.id}')">📖 Baca</button>
+            <button class="btn btn-danger btn-sm" onclick="hapus('${b.id}')">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  renderList();
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Dashboard Resmi</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<!-- Hamburger -->
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title" id="greeting">Assalamualaikum</div>
+        <div class="page-subtitle">Semoga hari ini penuh keberkahan dan ilmu yang bermanfaat di (مشكاة)</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+      <div class="stat-card">
+        <div class="stat-icon">📖</div>
+        <div>
+          <div class="stat-value" id="statMurojaah">0</div>
+          <div class="stat-label">Murojaah Selesai</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💡</div>
+        <div>
+          <div class="stat-value" id="statFaidah">0</div>
+          <div class="stat-label">Catatan Faidah</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div>
+          <div class="stat-value" id="statHalaqah">0</div>
+          <div class="stat-label">Halaqah Belajar</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎧</div>
+        <div>
+          <div class="stat-value" id="statAudio">0</div>
+          <div class="stat-label">Audio Muhadharah</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div>
+          <div class="stat-value" id="statBooks">0</div>
+          <div class="stat-label">Buku Digital</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h3 class="mb-2" style="color:var(--primary-dark);font-size:1rem;">⚡ Akses Cepat</h3>
+    <div class="quick-actions mb-3" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+      <a href="murojaah.html" class="quick-action">
+        <span class="quick-action-icon">📖</span>
+        <span class="quick-action-label">Jadwal Murojaah</span>
+      </a>
+      <a href="belajar.html" class="quick-action">
+        <span class="quick-action-icon">👥</span>
+        <span class="quick-action-label">Belajar Bersama</span>
+      </a>
+      <a href="faidah.html" class="quick-action">
+        <span class="quick-action-icon">💡</span>
+        <span class="quick-action-label">Kolom Faidah</span>
+      </a>
+      <a href="muhadharah.html" class="quick-action">
+        <span class="quick-action-icon">🎧</span>
+        <span class="quick-action-label">Muhadharah</span>
+      </a>
+      <a href="books.html" class="quick-action">
+        <span class="quick-action-icon">📚</span>
+        <span class="quick-action-label">Buku Digital</span>
+      </a>
+    </div>
+
+    <!-- Target Bulanan Banner (if set) -->
+    <div id="targetBanner" class="card mb-3" style="display:none;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;padding:16px 20px;">
+      <div class="flex items-center justify-between flex-wrap gap-1">
+        <div>
+          <span style="font-size:0.75rem;color:var(--gold-light);font-weight:600;letter-spacing:1px;text-transform:uppercase;">🎯 Target Hafalan Bulan Ini</span>
+          <div style="font-size:1.1rem;font-weight:700;margin-top:2px;" id="dbTargetName">-</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span style="font-size:0.9rem;font-weight:600;" id="dbTargetProgress">0/0 Selesai</span>
+          <a href="murojaah.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);">Lihat Target</a>
+        </div>
+      </div>
+      <div class="target-progress-bar" style="height:8px;margin-top:10px;">
+        <div class="target-progress-fill" id="dbTargetFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Two-column grid -->
+    <div class="grid-2">
+      <!-- Today's Schedule -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Murojaah Hari Ini</div>
+          <a href="murojaah.html" class="btn btn-outline btn-sm">Lihat Semua</a>
+        </div>
+        <div id="todaySchedule">
+          <div class="empty-state" style="padding:30px 20px;">
+            <span class="empty-icon">📋</span>
+            <p>Belum ada jadwal murojaah hari ini</p>
+          </div>
+        </div>
+        <!-- Progress -->
+        <div id="todayProgress" class="d-none" style="margin-top:14px;">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">Progress Hari Ini</span>
+            <span style="font-size:0.8rem;font-weight:600;color:var(--primary);" id="progressText">0%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Faidah & Quote -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Faidah Pilihan -->
+        <div class="card" style="border-left: 4px solid var(--gold); background: linear-gradient(to bottom right, #fff, #fdfcf7);">
+          <div class="card-header" style="border-bottom: 1px dashed var(--cream-dark); padding-bottom: 10px; margin-bottom: 12px;">
+            <div class="card-title" style="font-size: 0.95rem;">💡 Mutiara Faidah Pilihan</div>
+            <a href="faidah.html" class="btn btn-outline btn-sm">Buka Kolom</a>
+          </div>
+          <div id="featuredFaidah">
+            <div style="font-size:0.92rem;font-weight:700;color:var(--primary-dark);margin-bottom:6px;" id="ffJudul">Makna (مشكاة)</div>
+            <div class="font-arabic" style="font-size:1.15rem;color:var(--primary);margin-bottom:6px;" id="ffArabic">مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ</div>
+            <div style="font-size:0.83rem;color:#444;line-height:1.5;margin-bottom:8px;" id="ffIsi">Misykah adalah pelindung lentera yang mengumpulkan cahaya hingga memancar terang benderang...</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-style:italic;" id="ffSumber">📚 Tafsir Ibnu Katsir</div>
+          </div>
+        </div>
+
+        <!-- Daily Quranic Quote -->
+        <div class="quote-block" id="dailyQuote">
+          <div class="quote-arabic"></div>
+          <div class="quote-indo"></div>
+          <div class="quote-source"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Halaqah Bersama & Aktivitas Terkini Grid -->
+    <div class="grid-2 mt-3">
+      <!-- Active Classes & Halaqah -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🏫 Kelas & Halaqah Belajar</div>
+          <a href="belajar.html" class="btn btn-outline btn-sm">Buka Kelas</a>
+        </div>
+        <div id="recentHalaqah">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🕐 Aktivitas Terkini</div>
+        </div>
+        <div id="recentActivity">
+          <div class="empty-state" style="padding:20px;">
+            <span class="empty-icon" style="font-size:2rem;">📊</span>
+            <p style="font-size:0.82rem;">Belum ada aktivitas tercatat</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motivational Footer -->
+    <div style="text-align:center;padding:24px 0 8px;color:var(--text-muted);font-size:0.8rem;">
+      <span class="font-arabic" style="color:var(--gold);font-size:1.2rem;">(مشكاة) — كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ</span>
+    </div>
+  </div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+
+  // Init
+  document.getElementById('greeting').textContent = 'Assalamualaikum, ' + session.name.split(' ')[0] + ' 👋';
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+  initSidebar();
+
+  // Default Faidah Seed if empty
+  let userFaidah = getUserData('faidah', session.userId);
+  if (!userFaidah || userFaidah.length === 0) {
+    userFaidah = [
+      {
+        id: generateId(),
+        judul: 'Makna Kata (مشكاة) dalam Al-Qur\'an',
+        kategori: 'Al-Qur\'an & Tafsir',
+        arabicText: 'مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ',
+        isi: 'Misykah (مشكاة) adalah lubang penampung lentera di dinding yang memantulkan dan memfokuskan cahaya hingga memancar terang benderang. Perumpamaan cahaya ilmu dan keimanan di hati penuntut ilmu.',
+        sumber: 'Tafsir Al-Qur\'an Al-\'Azhim (Surah An-Nur: 35)',
+        tags: ['misykah', 'cahaya', 'ilmu'],
+        isPinned: true,
+        tanggal: todayStr()
+      }
+    ];
+    saveUserData('faidah', session.userId, userFaidah);
+  }
+
+  // Stats
+  const murojaahData = getUserData('murojaah', session.userId);
+  const audioData    = getUserData('muhadharah', session.userId);
+  const booksData    = getUserData('books', session.userId);
+  const faidahData   = getUserData('faidah', session.userId);
+  const halaqahData  = getGlobalData('halaqah_rooms');
+
+  document.getElementById('statMurojaah').textContent = murojaahData.filter(m => m.status === 'selesai').length;
+  document.getElementById('statFaidah').textContent   = faidahData.length;
+  document.getElementById('statHalaqah').textContent  = halaqahData.length;
+  document.getElementById('statAudio').textContent    = audioData.length;
+  document.getElementById('statBooks').textContent    = booksData.length;
+
+  // Monthly Target Banner
+  const targetKey = `misykah_target_${session.userId}`;
+  const target = JSON.parse(localStorage.getItem(targetKey) || 'null');
+  const now = new Date();
+  if (target && target.month === now.getMonth() && target.year === now.getFullYear()) {
+    const banner = document.getElementById('targetBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('dbTargetName').textContent = target.name;
+      const selesaiBulanIni = murojaahData.filter(m => {
+        if (m.status !== 'selesai') return false;
+        const d = new Date(m.jadwal);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      }).length;
+      const pct = Math.min(100, Math.round((selesaiBulanIni / target.count) * 100));
+      document.getElementById('dbTargetProgress').textContent = `${selesaiBulanIni}/${target.count} Selesai (${pct}%)`;
+      document.getElementById('dbTargetFill').style.width = pct + '%';
+    }
+  }
+
+  // Featured Faidah
+  if (faidahData.length > 0) {
+    const ff = faidahData.find(f => f.isPinned) || faidahData[0];
+    document.getElementById('ffJudul').textContent = ff.judul;
+    document.getElementById('ffArabic').textContent = ff.arabicText || '';
+    document.getElementById('ffArabic').style.display = ff.arabicText ? 'block' : 'none';
+    document.getElementById('ffIsi').textContent = ff.isi.length > 150 ? ff.isi.substring(0, 150) + '...' : ff.isi;
+    document.getElementById('ffSumber').textContent = ff.sumber ? '📚 ' + ff.sumber : '';
+  }
+
+  // Active Classes & Halaqah preview
+  const hlqEl = document.getElementById('recentHalaqah');
+  const classesData = getGlobalData('classes');
+  if (classesData.length > 0 || halaqahData.length > 0) {
+    let itemsHtml = '';
+    if (classesData.length > 0) {
+      itemsHtml += classesData.slice(0, 2).map(c => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--cream-dark);">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-weight:600;font-size:0.9rem;color:var(--primary-dark);">🏫 ${c.nama}</span>
+            <span class="badge badge-gold" style="font-size:0.7rem;">🔑 ${c.kode}</span>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">👤 Pengampu: ${c.pemateri} • 👥 ${c.anggota.length} Santri</div>
+        </div>
+      `).join('');
+    }
+    if (halaqahData.length > 0 && classesData.length < 2) {
+      itemsHtml += halaqahData.slice(0, 2 - classesData.length).map(h => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--cream-dark);">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-weight:600;font-size:0.9rem;color:var(--primary-dark);">${h.judul}</span>
+            <span class="badge ${h.status === 'ongoing' ? 'badge-success' : 'badge-warning'}" style="font-size:0.7rem;">
+              ${h.status === 'ongoing' ? '🟢 Berlangsung' : '⏳ Terjadwal'}
+            </span>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">📖 ${h.materi} • ⏰ ${h.waktu}</div>
+        </div>
+      `).join('');
+    }
+    hlqEl.innerHTML = itemsHtml + `<div class="text-right mt-2"><a href="belajar.html" class="btn btn-outline btn-sm">Buka Belajar & Kelas →</a></div>`;
+  } else {
+    hlqEl.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:0.85rem;">Belum ada grup kelas atau halaqah aktif.</p><a href="belajar.html" class="btn btn-primary btn-sm mt-2">+ Buat Kelas Baru</a></div>`;
+  }
+
+  // Today's schedule
+  const today = todayStr();
+  const todayItems = murojaahData.filter(m => m.jadwal === today);
+  const selesaiCount = todayItems.filter(m => m.status === 'selesai').length;
+  const scheduleEl = document.getElementById('todaySchedule');
+  const progressEl = document.getElementById('todayProgress');
+  const progFill   = document.getElementById('progressFill');
+  const progText   = document.getElementById('progressText');
+
+  if (todayItems.length > 0) {
+    const pct = Math.round((selesaiCount / todayItems.length) * 100);
+    scheduleEl.innerHTML = todayItems.slice(0, 4).map(m => `
+      <div class="murojaah-item ${m.status}" style="margin-bottom:8px;">
+        <div class="murojaah-info">
+          <div class="murojaah-materi" style="font-size:0.88rem;">${m.materi}</div>
+          <div class="murojaah-meta">
+            <span>⏰ ${m.waktu}</span>
+            <span class="badge badge-${m.status==='selesai'?'success':m.status==='terlewat'?'danger':'warning'}">${m.status}</span>
+          </div>
+        </div>
+      </div>`).join('');
+    if (todayItems.length > 4) {
+      scheduleEl.innerHTML += `<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;">+${todayItems.length - 4} lainnya</p>`;
+    }
+    progressEl.classList.remove('d-none');
+    progFill.style.width = pct + '%';
+    progText.textContent = pct + '%';
+  }
+
+  // Daily quote
+  const q = getDailyQuote();
+  const qEl = document.getElementById('dailyQuote');
+  qEl.querySelector('.quote-arabic').textContent = q.arabic;
+  qEl.querySelector('.quote-indo').textContent   = q.indo;
+  qEl.querySelector('.quote-source').textContent = '— ' + q.source;
+
+  // Recent Activity
+  const allActivity = [
+    ...murojaahData.filter(m=>m.status==='selesai').map(m=>({ time: m.jadwal, label: 'Murojaah selesai: ' + m.materi, icon: '✅' })),
+    ...faidahData.map(f => ({ time: f.tanggal, label: 'Faidah: ' + f.judul, icon: '💡' })),
+    ...audioData.map(a => ({ time: a.tanggal, label: 'Audio: ' + a.judul, icon: '🎧' })),
+    ...booksData.map(b => ({ time: b.tanggal, label: 'Buku: ' + b.judul, icon: '📚' }))
+  ].sort((a,b) => b.time > a.time ? 1 : -1).slice(0, 4);
+
+  const actEl = document.getElementById('recentActivity');
+  if (allActivity.length > 0) {
+    actEl.innerHTML = allActivity.map(a => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cream-dark);">
+        <span style="font-size:1.2rem;">${a.icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:0.83rem;font-weight:500;">${a.label}</div>
+          <div style="font-size:0.74rem;color:var(--text-muted);">${formatDate(a.time)}</div>
+        </div>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Kolom Faidah Ilmu</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item active"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">💡 Kolom Faidah (فائدة)</div>
+        <div class="page-subtitle">Ikat mutiara ilmu dan hikmah dari murojaah, muhadharah, dan kitab yang dibaca</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">قَيِّدُوا الْعِلْمَ بِالْكِتَابِ</div>
+      <div class="quote-indo">"Ikatlah ilmu dengan menuliskannya."</div>
+      <div class="quote-source">— Hadits Riwayat Ath-Thabarani & Al-Hakim</div>
+    </div>
+
+    <!-- Actions & Filter Bar -->
+    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+      <div class="flex items-center gap-1 flex-wrap" style="flex:1;min-width:280px;">
+        <input type="text" id="searchInput" class="form-control" style="max-width:300px;" placeholder="🔍 Cari faidah, ayat, kitab, topik..." oninput="renderFaidah()">
+        <select id="categoryFilter" class="form-control" style="max-width:200px;" onchange="renderFaidah()">
+          <option value="">Semua Kategori</option>
+          <option value="Al-Qur'an & Tafsir">Al-Qur'an & Tafsir</option>
+          <option value="Hadits & Sunnah">Hadits & Sunnah</option>
+          <option value="Aqidah">Aqidah</option>
+          <option value="Fiqh">Fiqh</option>
+          <option value="Bahasa Arab">Bahasa Arab</option>
+          <option value="Tazkiyah & Adab">Tazkiyah & Adab</option>
+          <option value="Faidah Muhadharah">Faidah Muhadharah</option>
+          <option value="Catatan Buku">Catatan Buku</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <button id="btnFavFilter" class="btn btn-outline btn-sm" onclick="toggleFavFilter()">⭐ Favorit Saja</button>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">✨ + Catat Faidah Baru</button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-grid mb-3" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div>
+          <div class="stat-value" id="totalFaidah">0</div>
+          <div class="stat-label">Total Faidah</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div>
+          <div class="stat-value" id="favFaidah">0</div>
+          <div class="stat-label">Faidah Pilihan</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏷️</div>
+        <div>
+          <div class="stat-value" id="catCount">0</div>
+          <div class="stat-label">Kategori Aktif</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Faidah Grid Container -->
+    <div class="faidah-grid" id="faidahContainer">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+</main>
+
+<!-- Modal Tambah/Edit Faidah -->
+<div class="modal-overlay" id="faidahModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">✨ Catat Faidah Ilmu</div>
+      <button class="modal-close" onclick="closeModal('faidahModal')">✕</button>
+    </div>
+    <form onsubmit="handleSaveFaidah(event)">
+      <input type="hidden" id="faidahId">
+      <div class="form-group">
+        <label class="form-label">Judul Faidah *</label>
+        <input type="text" id="faidahJudul" class="form-control" placeholder="Contoh: Makna Cahaya di Atas Cahaya" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori *</label>
+        <select id="faidahKategori" class="form-control" required>
+          <option value="Al-Qur'an & Tafsir">Al-Qur'an & Tafsir</option>
+          <option value="Hadits & Sunnah">Hadits & Sunnah</option>
+          <option value="Aqidah">Aqidah</option>
+          <option value="Fiqh">Fiqh</option>
+          <option value="Bahasa Arab">Bahasa Arab</option>
+          <option value="Tazkiyah & Adab">Tazkiyah & Adab</option>
+          <option value="Faidah Muhadharah">Faidah Muhadharah</option>
+          <option value="Catatan Buku">Catatan Buku</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kutipan Teks Arab / Dalil (Opsional)</label>
+        <textarea id="faidahArabic" class="form-control font-arabic" rows="2" style="font-size:1.15rem;direction:rtl;" placeholder="أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Uraian & Penjelasan Faidah *</label>
+        <textarea id="faidahIsi" class="form-control" rows="4" placeholder="Tuliskan hikmah, pelajaran, atau intisari ilmu yang Anda peroleh..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sumber / Rujukan</label>
+        <input type="text" id="faidahSumber" class="form-control" placeholder="Contoh: Tafsir As-Sa'di hal. 560 / Kajian Ustadz Firanda">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kata Kunci / Tagar (Pisahkan dengan koma)</label>
+        <input type="text" id="faidahTags" class="form-control" placeholder="Contoh: hidayah, ilmu, tahfidz">
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;">
+          <input type="checkbox" id="faidahPin" style="width:16px;height:16px;accent-color:var(--gold);">
+          <span>⭐ Jadikan Faidah Favorit / Sematkan di Atas</span>
+        </label>
+      </div>
+      <div class="flex justify-between gap-1 mt-3">
+        <button type="button" class="btn btn-outline" onclick="closeModal('faidahModal')">Batal</button>
+        <button type="submit" class="btn btn-primary">💾 Simpan Faidah</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+  initSidebar();
+
+  let onlyFav = false;
+
+  // Sample seed data if user has no fawaid yet
+  function initDefaultFaidah() {
+    let list = getUserData('faidah', session.userId);
+    if (!list || list.length === 0) {
+      list = [
+        {
+          id: generateId(),
+          judul: 'Makna Kata (مشكاة) dalam Ayat Cahaya',
+          kategori: 'Al-Qur\'an & Tafsir',
+          arabicText: 'مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ',
+          isi: 'Ibnu Katsir dan mayoritas ahli tafsir menjelaskan bahwa "Misykah" (مشكاة) adalah lubang di dinding tempat diletakkannya lentera/pelita yang memantulkan dan mengumpulkan cahaya sehingga cahayanya menjadi sangat terang benderang. Inilah perumpamaan cahaya iman dan ilmu di dalam dada seorang mukmin.',
+          sumber: 'Tafsir Al-Qur\'an Al-\'Azhim (Surah An-Nur: 35)',
+          tags: ['misykah', 'cahaya', 'iman', 'tafsir'],
+          isPinned: true,
+          tanggal: todayStr()
+        },
+        {
+          id: generateId(),
+          judul: 'Tiga Kunci Hafalan Melekat',
+          kategori: 'Tazkiyah & Adab',
+          arabicText: 'شَكَوْتُ إِلَى وَكِيعٍ سُوءَ حِفْظِي فَأَرْشَدَنِي إِلَى تَرْكِ الْمَعَاصِي',
+          isi: 'Nasihat Imam Asy-Syafi\'i: Menjauhi maksiat, memperbanyak murojaah di waktu sepi (qiyamul lail/subuh), dan mentadabburi maknanya sebelum menghafalkannya. Ilmu adalah cahaya, dan cahaya Allah tidak diberikan kepada pelaku maksiat.',
+          sumber: 'Diwan Al-Imam Asy-Syafi\'i',
+          tags: ['tahfidz', 'adab', 'murojaah'],
+          isPinned: true,
+          tanggal: todayStr()
+        },
+        {
+          id: generateId(),
+          judul: 'Keutamaan Belajar Bersama & Bertadarus',
+          kategori: 'Hadits & Sunnah',
+          arabicText: 'مَا اجْتَمَعَ قَوْمٌ فِي بَيْتٍ مِنْ بُيُوتِ اللَّهِ يَتْلُونَ كِتَابَ اللَّهِ وَيَتَدَارَسُونَهُ بَيْنَهُمْ إِلَّا نَزَلَتْ عَلَيْهِمُ السَّكِينَةُ',
+          isi: 'Tidaklah suatu kaum berkumpul di rumah Allah membaca Al-Qur\'an dan saling mempelajarinya (bertadarus) melainkan akan turun ketenangan, diliputi rahmat, dinaungi malaikat, dan dibanggakan Allah di hadapan makhluk di sisi-Nya.',
+          sumber: 'H.R. Muslim no. 2699',
+          tags: ['halaqah', 'belajar', 'tadarus'],
+          isPinned: false,
+          tanggal: todayStr()
+        }
+      ];
+      saveUserData('faidah', session.userId, list);
+    }
+  }
+
+  initDefaultFaidah();
+
+  function toggleFavFilter() {
+    onlyFav = !onlyFav;
+    const btn = document.getElementById('btnFavFilter');
+    if (onlyFav) {
+      btn.classList.remove('btn-outline');
+      btn.classList.add('btn-primary');
+    } else {
+      btn.classList.add('btn-outline');
+      btn.classList.remove('btn-primary');
+    }
+    renderFaidah();
+  }
+
+  function openAddModal() {
+    document.getElementById('modalTitle').textContent = '✨ Catat Faidah Ilmu';
+    document.getElementById('faidahId').value = '';
+    document.getElementById('faidahJudul').value = '';
+    document.getElementById('faidahKategori').value = 'Al-Qur\'an & Tafsir';
+    document.getElementById('faidahArabic').value = '';
+    document.getElementById('faidahIsi').value = '';
+    document.getElementById('faidahSumber').value = '';
+    document.getElementById('faidahTags').value = '';
+    document.getElementById('faidahPin').checked = false;
+    openModal('faidahModal');
+  }
+
+  function editFaidah(id) {
+    const list = getUserData('faidah', session.userId);
+    const item = list.find(f => f.id === id);
+    if (!item) return;
+
+    document.getElementById('modalTitle').textContent = '✏️ Edit Faidah Ilmu';
+    document.getElementById('faidahId').value = item.id;
+    document.getElementById('faidahJudul').value = item.judul;
+    document.getElementById('faidahKategori').value = item.kategori;
+    document.getElementById('faidahArabic').value = item.arabicText || '';
+    document.getElementById('faidahIsi').value = item.isi;
+    document.getElementById('faidahSumber').value = item.sumber || '';
+    document.getElementById('faidahTags').value = (item.tags || []).join(', ');
+    document.getElementById('faidahPin').checked = !!item.isPinned;
+    openModal('faidahModal');
+  }
+
+  function handleSaveFaidah(e) {
+    e.preventDefault();
+    const id = document.getElementById('faidahId').value;
+    const judul = document.getElementById('faidahJudul').value.trim();
+    const kategori = document.getElementById('faidahKategori').value;
+    const arabicText = document.getElementById('faidahArabic').value.trim();
+    const isi = document.getElementById('faidahIsi').value.trim();
+    const sumber = document.getElementById('faidahSumber').value.trim();
+    const tagsRaw = document.getElementById('faidahTags').value;
+    const isPinned = document.getElementById('faidahPin').checked;
+
+    const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+    let list = getUserData('faidah', session.userId);
+
+    if (id) {
+      // Edit
+      const idx = list.findIndex(f => f.id === id);
+      if (idx !== -1) {
+        list[idx] = {
+          ...list[idx],
+          judul, kategori, arabicText, isi, sumber, tags, isPinned
+        };
+        showToast('Faidah berhasil diperbarui!', 'success');
+      }
+    } else {
+      // Baru
+      list.unshift({
+        id: generateId(),
+        judul,
+        kategori,
+        arabicText,
+        isi,
+        sumber,
+        tags,
+        isPinned,
+        tanggal: todayStr()
+      });
+      showToast('Faidah baru berhasil dicatat!', 'success');
+    }
+
+    saveUserData('faidah', session.userId, list);
+    closeModal('faidahModal');
+    renderFaidah();
+  }
+
+  function deleteFaidah(id) {
+    if (!confirm('Yakin ingin menghapus catatan faidah ini?')) return;
+    let list = getUserData('faidah', session.userId);
+    list = list.filter(f => f.id !== id);
+    saveUserData('faidah', session.userId, list);
+    showToast('Faidah telah dihapus.', 'info');
+    renderFaidah();
+  }
+
+  function togglePin(id) {
+    let list = getUserData('faidah', session.userId);
+    const item = list.find(f => f.id === id);
+    if (item) {
+      item.isPinned = !item.isPinned;
+      saveUserData('faidah', session.userId, list);
+      showToast(item.isPinned ? 'Faidah disematkan di atas ⭐' : 'Sematkan dilepas', 'success');
+      renderFaidah();
+    }
+  }
+
+  function copyFaidah(id) {
+    const list = getUserData('faidah', session.userId);
+    const item = list.find(f => f.id === id);
+    if (!item) return;
+
+    let text = `💡 *${item.judul}*\n_(${item.kategori})_\n\n`;
+    if (item.arabicText) text += `${item.arabicText}\n\n`;
+    text += `${item.isi}\n\n`;
+    if (item.sumber) text += `📚 Sumber: ${item.sumber}\n`;
+    text += `\n— Dicatat di (مشكاة)`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Teks Faidah berhasil disalin ke clipboard! 📋', 'success');
+    }).catch(() => {
+      showToast('Gagal menyalin secara otomatis', 'warning');
+    });
+  }
+
+  function renderFaidah() {
+    const list = getUserData('faidah', session.userId);
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+
+    // Update Stats
+    document.getElementById('totalFaidah').textContent = list.length;
+    document.getElementById('favFaidah').textContent = list.filter(f => f.isPinned).length;
+    const uniqueCats = new Set(list.map(f => f.kategori));
+    document.getElementById('catCount').textContent = uniqueCats.size;
+
+    let filtered = list.filter(f => {
+      const matchSearch = f.judul.toLowerCase().includes(search) ||
+                          f.isi.toLowerCase().includes(search) ||
+                          (f.arabicText && f.arabicText.includes(search)) ||
+                          (f.sumber && f.sumber.toLowerCase().includes(search)) ||
+                          (f.tags && f.tags.some(t => t.toLowerCase().includes(search)));
+      const matchCat = !category || f.kategori === category;
+      const matchFav = !onlyFav || f.isPinned;
+      return matchSearch && matchCat && matchFav;
+    });
+
+    // Urutkan: Pinned di atas, lalu tanggal terbaru
+    filtered.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.id.localeCompare(a.id);
+    });
+
+    const container = document.getElementById('faidahContainer');
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 50px 20px;">
+          <span class="empty-icon">💡</span>
+          <p style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">Belum ada faidah yang cocok</p>
+          <span style="font-size:0.85rem;color:var(--text-muted);">Mulai catat faidah ilmu baru dengan menekan tombol di atas.</span>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(f => `
+      <div class="faidah-card ${f.isPinned ? 'pinned' : ''}">
+        <div class="faidah-header">
+          <div>
+            <span class="faidah-badge">${f.kategori}</span>
+            <div class="faidah-title mt-1">${f.judul}</div>
+          </div>
+          <button onclick="togglePin('${f.id}')" title="${f.isPinned ? 'Lepas Favorit' : 'Jadikan Favorit'}" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">
+            ${f.isPinned ? '⭐' : '☆'}
+          </button>
+        </div>
+
+        ${f.arabicText ? `<div class="faidah-arabic">${f.arabicText}</div>` : ''}
+
+        <div class="faidah-body">${f.isi.replace(/\n/g, '<br>')}</div>
+
+        ${f.sumber ? `
+          <div class="faidah-source">
+            <span>📚</span>
+            <span>${f.sumber}</span>
+          </div>
+        ` : ''}
+
+        <div class="faidah-footer">
+          <div class="faidah-tags">
+            ${(f.tags || []).map(t => `<span class="faidah-tag">#${t}</span>`).join('')}
+          </div>
+          <div class="faidah-actions">
+            <button onclick="copyFaidah('${f.id}')" class="btn btn-outline btn-sm" title="Salin Teks">📋 Salin</button>
+            <button onclick="editFaidah('${f.id}')" class="btn btn-outline btn-sm" title="Edit Faidah">✏️</button>
+            <button onclick="deleteFaidah('${f.id}')" class="btn btn-danger btn-sm" title="Hapus">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderFaidah();
+</script>
+</body>
+</html>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d3d25"/>
+      <stop offset="100%" stop-color="#1a5c38"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0b84a"/>
+      <stop offset="100%" stop-color="#c9a227"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <rect x="4" y="4" width="120" height="120" rx="24" fill="none" stroke="url(#gold)" stroke-width="4"/>
+  <!-- Lantern Outline -->
+  <path d="M 52 38 Q 64 30 76 38 L 80 46 L 48 46 Z" fill="url(#gold)"/>
+  <path d="M 48 46 L 80 46 L 75 80 L 53 80 Z" fill="none" stroke="url(#gold)" stroke-width="3"/>
+  <circle cx="64" cy="62" r="10" fill="#ffd54f"/>
+  <path d="M 50 80 L 78 80 L 72 88 L 56 88 Z" fill="url(#gold)"/>
+  <!-- Arabic Letter Mim/Kaf accent or Arabic text -->
+  <text x="64" y="114" font-family="'Amiri', serif" font-size="24" font-weight="700" fill="url(#gold)" text-anchor="middle">مِشْكَاة</text>
+</svg>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri</title>
+  <meta name="description" content="Portal resmi (مشكاة) Misykah: Platform digital terpadu untuk santri thalabul ilmi. Jadwal murojaah harian, target bulanan, grup kelas privat kode akses, audio muhadharah, perpustakaan kitab PDF, dan faedah ilmiah.">
+  <meta name="keywords" content="Misykah, murojaah, santri, tahfidz, quran, hadits, kitab kuning, pesantren digital, muhadharah">
+  <meta name="author" content="(مشكاة) Digital Santri">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://misykah.id/">
+  <meta property="og:title" content="(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri">
+  <meta property="og:description" content="Jadwal murojaah, target bulanan, grup kelas kode akses, audio kajian, perpustakaan kitab, dan kolom faidah ilmiah.">
+  <meta property="og:image" content="assets/icons/logo.svg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri">
+  <meta name="twitter:description" content="Platform pembelajaran santri modern berbasis web standar W3C.">
+
+  <!-- PWA & Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/logo.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="background:var(--body-bg);">
+
+<!-- Official Navigation Bar -->
+<header class="portal-nav">
+  <a href="index.html" class="portal-brand">
+    <span class="portal-brand-logo">مِشْكَاة</span>
+    <div class="portal-brand-text">
+      <span class="portal-brand-title">(مشكاة) MISYKAH</span>
+      <span class="portal-brand-tagline">PLATFORM RESMI SANTRI</span>
+    </div>
+  </a>
+
+  <nav class="portal-nav-links">
+    <a href="#fitur" class="portal-nav-link">Pilar Fitur</a>
+    <a href="#keunggulan" class="portal-nav-link">Keunggulan</a>
+    <a href="privacy.html" class="portal-nav-link">Piagam & Privasi</a>
+    <a href="#authHub" class="btn btn-outline btn-sm" style="color:#ffffff;border-color:var(--gold);" id="navAuthBtn">🔐 Masuk Akun</a>
+  </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="portal-hero">
+  <div style="position:relative;z-index:2;max-width:980px;margin:0 auto;">
+    <div class="hero-pill">
+      <span>✦</span> PLATFORM DIGITAL RESMI SANTRI & THALABUL ILMI <span>✦</span>
+    </div>
+
+    <div class="hero-calligraphy">مِشْكَاة</div>
+    <h1 class="hero-title">Menjaga Hafalan, Menuntut Ilmu, dan Menggapai Keberkahan</h1>
+    <p class="hero-subtitle">
+      Ekosistem pembelajaran islami terpadu: jadwal murojaah terstruktur dengan target bulanan, grup kelas belajar privat berbasis kode akses unik, audio muhadharah tanpa batas memori via IndexedDB, perpustakaan kitab digital, dan kolom faidah ilmiah.
+    </p>
+
+    <!-- Quranic Verse -->
+    <div class="hero-verse">
+      <div class="font-arabic" style="font-size:1.4rem;color:var(--gold-light);line-height:1.8;direction:rtl;">
+        مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ
+      </div>
+      <div style="font-size:0.83rem;color:rgba(255,255,255,0.8);margin-top:6px;">
+        "Perumpamaan cahaya Allah adalah seperti sebuah lubang yang tak tembus (misykah), yang di dalamnya ada pelita besar..." — Q.S. An-Nur: 35
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-2 flex-wrap" style="justify-content:center;">
+      <a href="#authHub" class="btn btn-primary" style="padding:12px 28px;font-size:1rem;background:var(--gold);color:#0d3d25;font-weight:700;" id="heroActionBtn">
+        🚀 Buka Portal Santri
+      </a>
+      <a href="#fitur" class="btn btn-outline" style="padding:12px 24px;font-size:1rem;color:#ffffff;border-color:rgba(255,255,255,0.4);">
+        📖 Pelajari Fitur
+      </a>
+    </div>
+
+    <!-- Active User Welcome Banner (Shown dynamically if logged in) -->
+    <div id="loggedInBanner" style="display:none;margin-top:28px;background:rgba(201,162,39,0.2);border:1px solid var(--gold);border-radius:12px;padding:16px 20px;">
+      <div style="font-weight:600;font-size:1.05rem;color:#ffffff;">
+        Ahlan wa Sahlan, <span id="currentUserName" style="color:var(--gold-light);"></span>! 👋
+      </div>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.85);margin:4px 0 12px;">
+        Sesi login Anda sedang aktif. Silakan langsung menuju dashboard untuk melanjutkan murojaah.
+      </p>
+      <a href="dashboard.html" class="btn btn-primary btn-sm" style="background:#ffffff;color:var(--primary-dark);font-weight:700;">
+        🏠 Buka Dashboard Anda →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Five Pillars Section -->
+<section class="portal-section" id="fitur">
+  <div class="section-badge">EKOSISTEM PEMBELAJARAN</div>
+  <h2 class="section-heading">5 Pilar Utama Platform (مشكاة)</h2>
+  <p class="section-lead">
+    Semua kebutuhan penuntut ilmu dirancang secara rapi dalam satu aplikasi yang ringan, elegan, dan siap digunakan kapan saja.
+  </p>
+
+  <div class="pillar-grid">
+    <!-- Pillar 1 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">📖</div>
+      <h3 class="pillar-title">Jadwal Murojaah & Target</h3>
+      <p class="pillar-desc">
+        Kalender hafalan 7 hari, monitoring target bulanan otomatis, checklist harian, dan ekspor laporan berkala berformat terstruktur.
+      </p>
+    </div>
+
+    <!-- Pillar 2 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">🏫</div>
+      <h3 class="pillar-title">Grup Kelas & Kode Akses</h3>
+      <p class="pillar-desc">
+        Buka majelis ilmu atau gabung ke grup kelas privat menggunakan kode akses unik. Dilengkapi ruang halaqah murojaah dan partner tasmi'.
+      </p>
+    </div>
+
+    <!-- Pillar 3 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">🎧</div>
+      <h3 class="pillar-title">Studio Audio Muhadharah</h3>
+      <p class="pillar-desc">
+        Didukung <strong>IndexedDB Blob Storage</strong> untuk menyimpan file audio rekaman besar (50MB–100MB+) dengan pemutaran read-on-demand, speed control, dan mode looping tikrar.
+      </p>
+    </div>
+
+    <!-- Pillar 4 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">📚</div>
+      <h3 class="pillar-title">Perpustakaan Kitab Digital</h3>
+      <p class="pillar-desc">
+        Koleksi dan baca kitab PDF tebal langsung di peramban tanpa batas kuota localStorage. Dilengkapi PDF viewer berkecepatan tinggi.
+      </p>
+    </div>
+
+    <!-- Pillar 5 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">💡</div>
+      <h3 class="pillar-title">Kolom Faidah (فائدة)</h3>
+      <p class="pillar-desc">
+        Ikat mutiara ilmu dengan teks kutipan Arab (font Amiri), rujukan sanad/kitab, filter kategori, penandaan bintang ⭐, dan tombol salin kutipan instan.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Keunggulan Standar Lembaga -->
+<section style="background:var(--cream-dark);padding:50px 24px;" id="keunggulan">
+  <div style="max-width:1140px;margin:0 auto;">
+    <div class="section-badge">STANDAR TEKNOLOGI MODERN</div>
+    <h2 class="section-heading" style="margin-bottom:32px;">Keunggulan Resmi untuk Kenyamanan Belajar</h2>
+
+    <div class="pillar-grid">
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">🔒</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Kedaulatan & Keamanan Data</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Password santri dienkripsi menggunakan standar <strong>SHA-256 (Web Crypto API)</strong>. Seluruh data hafalan dan file tersimpan aman di perangkat Anda.
+        </p>
+      </div>
+
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">📱</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Progressive Web App (PWA)</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Bisa di-install sebagai aplikasi resmi di Android, iOS, Windows, dan MacOS. Langsung muncul di layar beranda tanpa toko aplikasi pihak ketiga.
+        </p>
+      </div>
+
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">🌙</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Mode Malam (Dark Mode)</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Dukungan tema malam islami yang sejuk di mata, sangat nyaman saat murojaah hafalan pada waktu sahur atau qiyamul lail.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Integrated Auth Hub Section -->
+<section class="portal-section" id="authHub">
+  <div class="section-badge">AKSES PENGGUNA</div>
+  <h2 class="section-heading">Portal Masuk & Pendaftaran Santri</h2>
+  <p class="section-lead">
+    Masuk ke akun Anda atau daftarkan akun baru untuk mulai memantau murojaah hari ini.
+  </p>
+
+  <div style="max-width:440px;margin:0 auto;">
+    <div class="card" style="padding:32px 28px;box-shadow:var(--shadow-lg);">
+      <!-- Tabs -->
+      <div class="auth-tabs" style="margin-bottom:24px;">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔐 Masuk Akun</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">✨ Daftar Santri Baru</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-form active" id="formLogin">
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">Selamat Datang Kembali</h3>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:14px;">Silakan masukkan username dan sandi santri</p>
+        
+        <!-- Quick Demo Account Box -->
+        <div style="background:rgba(26,92,56,0.07);border:1px dashed var(--primary);border-radius:8px;padding:12px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="font-size:0.8rem;color:var(--primary-dark);line-height:1.4;">
+              <strong>💡 Akun Uji Coba (Demo):</strong><br>
+              User: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:4px;font-weight:600;">santri</code> | Sandi: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:4px;font-weight:600;">santri123</code>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="loginDemoAccount()" style="font-size:0.75rem;padding:6px 12px;white-space:nowrap;font-weight:700;">
+              ⚡ Masuk Cepat
+            </button>
+          </div>
+        </div>
+
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="Username Anda" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div id="loginError" class="text-danger mb-2" style="font-size:0.84rem;display:none;"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="btnLogin" style="width:100%;padding:12px;font-size:0.95rem;font-weight:700;">
+            Masuk Portal
+          </button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.84rem;color:var(--text-muted);">
+          Belum punya akun? <a href="javascript:void(0)" onclick="switchAuthTab('register')" style="color:var(--primary);font-weight:600;">Daftar akun sekarang</a>
+        </p>
+      </div>
+
+      <!-- Register Form -->
+      <div class="auth-form" id="formRegister">
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">Buat Akun Santri Baru</h3>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:18px;">Bergabunglah dengan majelis murojaah digital</p>
+        
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" id="regName" class="form-control" placeholder="Contoh: Ahmad Fadhil" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username Unik</label>
+            <input type="text" id="regUsername" class="form-control" placeholder="Username tanpa spasi" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Kata Sandi</label>
+            <input type="password" id="regConfirm" class="form-control" placeholder="Ulangi kata sandi" required autocomplete="new-password">
+          </div>
+          <div id="regError" class="text-danger mb-2" style="font-size:0.84rem;display:none;"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="btnRegister" style="width:100%;padding:12px;font-size:0.95rem;font-weight:700;">
+            Daftar Sekarang
+          </button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.84rem;color:var(--text-muted);">
+          Sudah punya akun? <a href="javascript:void(0)" onclick="switchAuthTab('login')" style="color:var(--primary);font-weight:600;">Masuk di sini</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Official Footer -->
+<footer class="portal-footer">
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="font-arabic" style="font-size:2rem;color:var(--gold);">مِشْكَاة</span>
+        <span style="font-weight:700;font-size:1.1rem;letter-spacing:1px;">(مشكاة) — MISYKAH</span>
+      </div>
+      <p class="footer-desc">
+        Platform resmi murojaah, halaqah kelas berbasis kode akses, dan thalabul ilmi santri berbasis web modern. Didedikasikan bagi para penghafal Al-Qur'an dan penuntut ilmu syar'i.
+      </p>
+      <div style="margin-top:14px;color:var(--gold-light);font-size:0.8rem;">
+        ★ Q.S. An-Nur: 35 — كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Navigasi Utama</div>
+      <div class="footer-links">
+        <a href="#fitur" class="footer-link">Pilar Fitur</a>
+        <a href="#authHub" class="footer-link">Portal Masuk</a>
+        <a href="privacy.html" class="footer-link">Piagam & Privasi</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Bantuan & Dokumen</div>
+      <div class="footer-links">
+        <a href="privacy.html" class="footer-link">Kebijakan Privasi</a>
+        <a href="manifest.json" class="footer-link" target="_blank">PWA Manifest</a>
+        <a href="sitemap.xml" class="footer-link" target="_blank">Peta Situs (Sitemap)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>&copy; 2026 <strong>(مشكاة) Misykah</strong>. Hak Cipta Dilindungi Undang-Undang.</div>
+    <div>Platform Resmi Pembelajaran Santri Digital Modern</div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+<script>
+  // Check session on load
+  const session = getSession();
+  if (session) {
+    const banner = document.getElementById('loggedInBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('currentUserName').textContent = session.name;
+    }
+    const navBtn = document.getElementById('navAuthBtn');
+    if (navBtn) {
+      navBtn.innerHTML = '🏠 Dashboard';
+      navBtn.href = 'dashboard.html';
+    }
+    const heroBtn = document.getElementById('heroActionBtn');
+    if (heroBtn) {
+      heroBtn.innerHTML = '🏠 Buka Dashboard Anda';
+      heroBtn.href = 'dashboard.html';
+    }
+  }
+
+  function switchAuthTab(tab) {
+    document.getElementById('formLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('formRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('regError').style.display = 'none';
+  }
+
+  async function loginDemoAccount() {
+    await initDefaultUsers();
+    document.getElementById('loginUsername').value = 'santri';
+    document.getElementById('loginPassword').value = 'santri123';
+    const fakeEvent = { preventDefault: () => {} };
+    await handleLogin(fakeEvent);
+  }
+
+  async function handleLogin(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    const btn = document.getElementById('btnLogin');
+
+    errEl.style.display = 'none';
+    btn.innerHTML = '<span class="loader"></span> Memverifikasi...';
+    btn.disabled = true;
+
+    try {
+      await new Promise(r => setTimeout(r, 200));
+
+      let users = getUsers();
+      if (!users || users.length === 0) {
+        await initDefaultUsers();
+        users = getUsers();
+      }
+
+      const user = users.find(u => u.username.toLowerCase() === username);
+      if (!user) {
+        errEl.innerHTML = '❌ <strong>Username tidak ditemukan.</strong><br>Jika Anda baru pertama kali membuka website ini, silakan klik tab <em>"Daftar Santri Baru"</em> atau gunakan tombol <em>"⚡ Masuk Cepat"</em> di atas.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+        return;
+      }
+
+      const ok = await verifyPassword(password, user.password);
+      if (!ok) {
+        errEl.textContent = '❌ Kata sandi yang Anda masukkan salah. Periksa kembali huruf besar/kecil.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+        return;
+      }
+
+      setSession(user);
+      showToast(`Ahlan wa Sahlan, ${user.name}! 🌿`, 'success');
+      setTimeout(() => { 
+        window.location.href = 'dashboard.html'; 
+      }, 500);
+
+    } catch (err) {
+      console.error('[Misykah] Login error:', err);
+      errEl.textContent = '❌ Terjadi kendala saat login: ' + (err.message || 'Silakan coba lagi');
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+    }
+  }
+
+  async function handleRegister(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const name = document.getElementById('regName').value.trim();
+    const username = document.getElementById('regUsername').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirm').value;
+    const errEl = document.getElementById('regError');
+    const btn = document.getElementById('btnRegister');
+
+    errEl.style.display = 'none';
+
+    if (username.length < 3) {
+      errEl.textContent = '❌ Username minimal 3 karakter.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = '❌ Password minimal 6 karakter.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password !== confirm) {
+      errEl.textContent = '❌ Konfirmasi password tidak cocok.';
+      errEl.style.display = 'block'; return;
+    }
+
+    btn.innerHTML = '<span class="loader"></span> Mendaftarkan...';
+    btn.disabled = true;
+
+    try {
+      await new Promise(r => setTimeout(r, 250));
+
+      const users = getUsers();
+      if (users.some(u => u.username.toLowerCase() === username)) {
+        errEl.textContent = '❌ Username sudah digunakan oleh santri lain.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Daftar Sekarang'; btn.disabled = false;
+        return;
+      }
+
+      const hashedPassword = await hashPassword(password);
+      const newUser = {
+        id: generateId(),
+        name,
+        username,
+        password: hashedPassword,
+        createdAt: todayStr()
+      };
+
+      users.push(newUser);
+      saveUsers(users);
+      setSession(newUser);
+
+      showToast('Pendaftaran akun berhasil! Mengalihkan ke Dashboard...', 'success');
+      setTimeout(() => { 
+        window.location.href = 'dashboard.html'; 
+      }, 600);
+
+    } catch (err) {
+      console.error('[Misykah] Register error:', err);
+      errEl.textContent = '❌ Terjadi kendala saat pendaftaran: ' + (err.message || 'Silakan coba lagi');
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Daftar Sekarang'; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
+
+{
+  "name": "(مشكاة) — Platform Murojaah & Belajar Santri",
+  "short_name": "(مشكاة)",
+  "description": "Platform resmi pembelajaran santri untuk murojaah terstruktur, halaqah kelas dengan kode akses unik, audio muhadharah, dan perpustakaan kitab digital.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fafaf5",
+  "theme_color": "#1a5c38",
+  "orientation": "portrait-primary",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["education", "books", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icons/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
