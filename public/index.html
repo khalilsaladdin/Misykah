@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri</title>
+  <meta name="description" content="Portal resmi (مشكاة) Misykah: Platform digital terpadu untuk santri thalabul ilmi. Jadwal murojaah harian, target bulanan, grup kelas privat kode akses, audio muhadharah, perpustakaan kitab PDF, dan faedah ilmiah.">
+  <meta name="keywords" content="Misykah, murojaah, santri, tahfidz, quran, hadits, kitab kuning, pesantren digital, muhadharah">
+  <meta name="author" content="(مشكاة) Digital Santri">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://misykah.id/">
+  <meta property="og:title" content="(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri">
+  <meta property="og:description" content="Jadwal murojaah, target bulanan, grup kelas kode akses, audio kajian, perpustakaan kitab, dan kolom faidah ilmiah.">
+  <meta property="og:image" content="assets/icons/logo.svg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="(مشكاة) — Platform Resmi Murojaah & Pembelajaran Santri">
+  <meta name="twitter:description" content="Platform pembelajaran santri modern berbasis web standar W3C.">
+
+  <!-- PWA & Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/logo.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="background:var(--body-bg);">
+
+<!-- Official Navigation Bar -->
+<header class="portal-nav">
+  <a href="index.html" class="portal-brand">
+    <span class="portal-brand-logo">مِشْكَاة</span>
+    <div class="portal-brand-text">
+      <span class="portal-brand-title">(مشكاة) MISYKAH</span>
+      <span class="portal-brand-tagline">PLATFORM RESMI SANTRI</span>
+    </div>
+  </a>
+
+  <nav class="portal-nav-links">
+    <a href="#fitur" class="portal-nav-link">Pilar Fitur</a>
+    <a href="#keunggulan" class="portal-nav-link">Keunggulan</a>
+    <a href="privacy.html" class="portal-nav-link">Piagam & Privasi</a>
+    <a href="#authHub" class="btn btn-outline btn-sm" style="color:#ffffff;border-color:var(--gold);" id="navAuthBtn">🔐 Masuk Akun</a>
+  </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="portal-hero">
+  <div style="position:relative;z-index:2;max-width:980px;margin:0 auto;">
+    <div class="hero-pill">
+      <span>✦</span> PLATFORM DIGITAL RESMI SANTRI & THALABUL ILMI <span>✦</span>
+    </div>
+
+    <div class="hero-calligraphy">مِشْكَاة</div>
+    <h1 class="hero-title">Menjaga Hafalan, Menuntut Ilmu, dan Menggapai Keberkahan</h1>
+    <p class="hero-subtitle">
+      Ekosistem pembelajaran islami terpadu: jadwal murojaah terstruktur dengan target bulanan, grup kelas belajar privat berbasis kode akses unik, audio muhadharah tanpa batas memori via IndexedDB, perpustakaan kitab digital, dan kolom faidah ilmiah.
+    </p>
+
+    <!-- Quranic Verse -->
+    <div class="hero-verse">
+      <div class="font-arabic" style="font-size:1.4rem;color:var(--gold-light);line-height:1.8;direction:rtl;">
+        مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ
+      </div>
+      <div style="font-size:0.83rem;color:rgba(255,255,255,0.8);margin-top:6px;">
+        "Perumpamaan cahaya Allah adalah seperti sebuah lubang yang tak tembus (misykah), yang di dalamnya ada pelita besar..." — Q.S. An-Nur: 35
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-2 flex-wrap" style="justify-content:center;">
+      <a href="#authHub" class="btn btn-primary" style="padding:12px 28px;font-size:1rem;background:var(--gold);color:#0d3d25;font-weight:700;" id="heroActionBtn">
+        🚀 Buka Portal Santri
+      </a>
+      <a href="#fitur" class="btn btn-outline" style="padding:12px 24px;font-size:1rem;color:#ffffff;border-color:rgba(255,255,255,0.4);">
+        📖 Pelajari Fitur
+      </a>
+    </div>
+
+    <!-- Active User Welcome Banner (Shown dynamically if logged in) -->
+    <div id="loggedInBanner" style="display:none;margin-top:28px;background:rgba(201,162,39,0.2);border:1px solid var(--gold);border-radius:12px;padding:16px 20px;">
+      <div style="font-weight:600;font-size:1.05rem;color:#ffffff;">
+        Ahlan wa Sahlan, <span id="currentUserName" style="color:var(--gold-light);"></span>! 👋
+      </div>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.85);margin:4px 0 12px;">
+        Sesi login Anda sedang aktif. Silakan langsung menuju dashboard untuk melanjutkan murojaah.
+      </p>
+      <a href="dashboard.html" class="btn btn-primary btn-sm" style="background:#ffffff;color:var(--primary-dark);font-weight:700;">
+        🏠 Buka Dashboard Anda →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Five Pillars Section -->
+<section class="portal-section" id="fitur">
+  <div class="section-badge">EKOSISTEM PEMBELAJARAN</div>
+  <h2 class="section-heading">5 Pilar Utama Platform (مشكاة)</h2>
+  <p class="section-lead">
+    Semua kebutuhan penuntut ilmu dirancang secara rapi dalam satu aplikasi yang ringan, elegan, dan siap digunakan kapan saja.
+  </p>
+
+  <div class="pillar-grid">
+    <!-- Pillar 1 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">📖</div>
+      <h3 class="pillar-title">Jadwal Murojaah & Target</h3>
+      <p class="pillar-desc">
+        Kalender hafalan 7 hari, monitoring target bulanan otomatis, checklist harian, dan ekspor laporan berkala berformat terstruktur.
+      </p>
+    </div>
+
+    <!-- Pillar 2 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">🏫</div>
+      <h3 class="pillar-title">Grup Kelas & Kode Akses</h3>
+      <p class="pillar-desc">
+        Buka majelis ilmu atau gabung ke grup kelas privat menggunakan kode akses unik. Dilengkapi ruang halaqah murojaah dan partner tasmi'.
+      </p>
+    </div>
+
+    <!-- Pillar 3 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">🎧</div>
+      <h3 class="pillar-title">Studio Audio Muhadharah</h3>
+      <p class="pillar-desc">
+        Didukung <strong>IndexedDB Blob Storage</strong> untuk menyimpan file audio rekaman besar (50MB–100MB+) dengan pemutaran read-on-demand, speed control, dan mode looping tikrar.
+      </p>
+    </div>
+
+    <!-- Pillar 4 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">📚</div>
+      <h3 class="pillar-title">Perpustakaan Kitab Digital</h3>
+      <p class="pillar-desc">
+        Koleksi dan baca kitab PDF tebal langsung di peramban tanpa batas kuota localStorage. Dilengkapi PDF viewer berkecepatan tinggi.
+      </p>
+    </div>
+
+    <!-- Pillar 5 -->
+    <div class="pillar-card">
+      <div class="pillar-icon">💡</div>
+      <h3 class="pillar-title">Kolom Faidah (فائدة)</h3>
+      <p class="pillar-desc">
+        Ikat mutiara ilmu dengan teks kutipan Arab (font Amiri), rujukan sanad/kitab, filter kategori, penandaan bintang ⭐, dan tombol salin kutipan instan.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Keunggulan Standar Lembaga -->
+<section style="background:var(--cream-dark);padding:50px 24px;" id="keunggulan">
+  <div style="max-width:1140px;margin:0 auto;">
+    <div class="section-badge">STANDAR TEKNOLOGI MODERN</div>
+    <h2 class="section-heading" style="margin-bottom:32px;">Keunggulan Resmi untuk Kenyamanan Belajar</h2>
+
+    <div class="pillar-grid">
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">🔒</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Kedaulatan & Keamanan Data</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Password santri dienkripsi menggunakan standar <strong>SHA-256 (Web Crypto API)</strong>. Seluruh data hafalan dan file tersimpan aman di perangkat Anda.
+        </p>
+      </div>
+
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">📱</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Progressive Web App (PWA)</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Bisa di-install sebagai aplikasi resmi di Android, iOS, Windows, dan MacOS. Langsung muncul di layar beranda tanpa toko aplikasi pihak ketiga.
+        </p>
+      </div>
+
+      <div class="pillar-card" style="background:var(--card-bg);">
+        <div style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;">🌙</div>
+        <h4 style="font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">Mode Malam (Dark Mode)</h4>
+        <p style="font-size:0.86rem;color:var(--text-dark);line-height:1.6;">
+          Dukungan tema malam islami yang sejuk di mata, sangat nyaman saat murojaah hafalan pada waktu sahur atau qiyamul lail.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Integrated Auth Hub Section -->
+<section class="portal-section" id="authHub">
+  <div class="section-badge">AKSES PENGGUNA</div>
+  <h2 class="section-heading">Portal Masuk & Pendaftaran Santri</h2>
+  <p class="section-lead">
+    Masuk ke akun Anda atau daftarkan akun baru untuk mulai memantau murojaah hari ini.
+  </p>
+
+  <div style="max-width:440px;margin:0 auto;">
+    <div class="card" style="padding:32px 28px;box-shadow:var(--shadow-lg);">
+      <!-- Tabs -->
+      <div class="auth-tabs" style="margin-bottom:24px;">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔐 Masuk Akun</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">✨ Daftar Santri Baru</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-form active" id="formLogin">
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">Selamat Datang Kembali</h3>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:14px;">Silakan masukkan username dan sandi santri</p>
+        
+        <!-- Quick Demo Account Box -->
+        <div style="background:rgba(26,92,56,0.07);border:1px dashed var(--primary);border-radius:8px;padding:12px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="font-size:0.8rem;color:var(--primary-dark);line-height:1.4;">
+              <strong>💡 Akun Uji Coba (Demo):</strong><br>
+              User: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:4px;font-weight:600;">santri</code> | Sandi: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:4px;font-weight:600;">santri123</code>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="loginDemoAccount()" style="font-size:0.75rem;padding:6px 12px;white-space:nowrap;font-weight:700;">
+              ⚡ Masuk Cepat
+            </button>
+          </div>
+        </div>
+
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="Username Anda" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div id="loginError" class="text-danger mb-2" style="font-size:0.84rem;display:none;"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="btnLogin" style="width:100%;padding:12px;font-size:0.95rem;font-weight:700;">
+            Masuk Portal
+          </button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.84rem;color:var(--text-muted);">
+          Belum punya akun? <a href="javascript:void(0)" onclick="switchAuthTab('register')" style="color:var(--primary);font-weight:600;">Daftar akun sekarang</a>
+        </p>
+      </div>
+
+      <!-- Register Form -->
+      <div class="auth-form" id="formRegister">
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">Buat Akun Santri Baru</h3>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:18px;">Bergabunglah dengan majelis murojaah digital</p>
+        
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" id="regName" class="form-control" placeholder="Contoh: Ahmad Fadhil" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username Unik</label>
+            <input type="text" id="regUsername" class="form-control" placeholder="Username tanpa spasi" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Kata Sandi</label>
+            <input type="password" id="regConfirm" class="form-control" placeholder="Ulangi kata sandi" required autocomplete="new-password">
+          </div>
+          <div id="regError" class="text-danger mb-2" style="font-size:0.84rem;display:none;"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="btnRegister" style="width:100%;padding:12px;font-size:0.95rem;font-weight:700;">
+            Daftar Sekarang
+          </button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.84rem;color:var(--text-muted);">
+          Sudah punya akun? <a href="javascript:void(0)" onclick="switchAuthTab('login')" style="color:var(--primary);font-weight:600;">Masuk di sini</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Official Footer -->
+<footer class="portal-footer">
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="font-arabic" style="font-size:2rem;color:var(--gold);">مِشْكَاة</span>
+        <span style="font-weight:700;font-size:1.1rem;letter-spacing:1px;">(مشكاة) — MISYKAH</span>
+      </div>
+      <p class="footer-desc">
+        Platform resmi murojaah, halaqah kelas berbasis kode akses, dan thalabul ilmi santri berbasis web modern. Didedikasikan bagi para penghafal Al-Qur'an dan penuntut ilmu syar'i.
+      </p>
+      <div style="margin-top:14px;color:var(--gold-light);font-size:0.8rem;">
+        ★ Q.S. An-Nur: 35 — كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Navigasi Utama</div>
+      <div class="footer-links">
+        <a href="#fitur" class="footer-link">Pilar Fitur</a>
+        <a href="#authHub" class="footer-link">Portal Masuk</a>
+        <a href="privacy.html" class="footer-link">Piagam & Privasi</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Bantuan & Dokumen</div>
+      <div class="footer-links">
+        <a href="privacy.html" class="footer-link">Kebijakan Privasi</a>
+        <a href="manifest.json" class="footer-link" target="_blank">PWA Manifest</a>
+        <a href="sitemap.xml" class="footer-link" target="_blank">Peta Situs (Sitemap)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>&copy; 2026 <strong>(مشكاة) Misykah</strong>. Hak Cipta Dilindungi Undang-Undang.</div>
+    <div>Platform Resmi Pembelajaran Santri Digital Modern</div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+<script>
+  // Check session on load
+  const session = getSession();
+  if (session) {
+    const banner = document.getElementById('loggedInBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('currentUserName').textContent = session.name;
+    }
+    const navBtn = document.getElementById('navAuthBtn');
+    if (navBtn) {
+      navBtn.innerHTML = '🏠 Dashboard';
+      navBtn.href = 'dashboard.html';
+    }
+    const heroBtn = document.getElementById('heroActionBtn');
+    if (heroBtn) {
+      heroBtn.innerHTML = '🏠 Buka Dashboard Anda';
+      heroBtn.href = 'dashboard.html';
+    }
+  }
+
+  function switchAuthTab(tab) {
+    document.getElementById('formLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('formRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('regError').style.display = 'none';
+  }
+
+  async function loginDemoAccount() {
+    await initDefaultUsers();
+    document.getElementById('loginUsername').value = 'santri';
+    document.getElementById('loginPassword').value = 'santri123';
+    const fakeEvent = { preventDefault: () => {} };
+    await handleLogin(fakeEvent);
+  }
+
+  async function handleLogin(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    const btn = document.getElementById('btnLogin');
+
+    errEl.style.display = 'none';
+    btn.innerHTML = '<span class="loader"></span> Memverifikasi...';
+    btn.disabled = true;
+
+    try {
+      await new Promise(r => setTimeout(r, 200));
+
+      let users = getUsers();
+      if (!users || users.length === 0) {
+        await initDefaultUsers();
+        users = getUsers();
+      }
+
+      const user = users.find(u => u.username.toLowerCase() === username);
+      if (!user) {
+        errEl.innerHTML = '❌ <strong>Username tidak ditemukan.</strong><br>Jika Anda baru pertama kali membuka website ini, silakan klik tab <em>"Daftar Santri Baru"</em> atau gunakan tombol <em>"⚡ Masuk Cepat"</em> di atas.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+        return;
+      }
+
+      const ok = await verifyPassword(password, user.password);
+      if (!ok) {
+        errEl.textContent = '❌ Kata sandi yang Anda masukkan salah. Periksa kembali huruf besar/kecil.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+        return;
+      }
+
+      setSession(user);
+      showToast(`Ahlan wa Sahlan, ${user.name}! 🌿`, 'success');
+      setTimeout(() => { 
+        window.location.href = 'dashboard.html'; 
+      }, 500);
+
+    } catch (err) {
+      console.error('[Misykah] Login error:', err);
+      errEl.textContent = '❌ Terjadi kendala saat login: ' + (err.message || 'Silakan coba lagi');
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Masuk Portal'; btn.disabled = false;
+    }
+  }
+
+  async function handleRegister(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const name = document.getElementById('regName').value.trim();
+    const username = document.getElementById('regUsername').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirm').value;
+    const errEl = document.getElementById('regError');
+    const btn = document.getElementById('btnRegister');
+
+    errEl.style.display = 'none';
+
+    if (username.length < 3) {
+      errEl.textContent = '❌ Username minimal 3 karakter.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = '❌ Password minimal 6 karakter.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password !== confirm) {
+      errEl.textContent = '❌ Konfirmasi password tidak cocok.';
+      errEl.style.display = 'block'; return;
+    }
+
+    btn.innerHTML = '<span class="loader"></span> Mendaftarkan...';
+    btn.disabled = true;
+
+    try {
+      await new Promise(r => setTimeout(r, 250));
+
+      const users = getUsers();
+      if (users.some(u => u.username.toLowerCase() === username)) {
+        errEl.textContent = '❌ Username sudah digunakan oleh santri lain.';
+        errEl.style.display = 'block';
+        btn.innerHTML = 'Daftar Sekarang'; btn.disabled = false;
+        return;
+      }
+
+      const hashedPassword = await hashPassword(password);
+      const newUser = {
+        id: generateId(),
+        name,
+        username,
+        password: hashedPassword,
+        createdAt: todayStr()
+      };
+
+      users.push(newUser);
+      saveUsers(users);
+      setSession(newUser);
+
+      showToast('Pendaftaran akun berhasil! Mengalihkan ke Dashboard...', 'success');
+      setTimeout(() => { 
+        window.location.href = 'dashboard.html'; 
+      }, 600);
+
+    } catch (err) {
+      console.error('[Misykah] Register error:', err);
+      errEl.textContent = '❌ Terjadi kendala saat pendaftaran: ' + (err.message || 'Silakan coba lagi');
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Daftar Sekarang'; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

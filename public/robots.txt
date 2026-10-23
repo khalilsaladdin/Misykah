@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://misykah.id/sitemap.xml

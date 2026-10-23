@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Jadwal Murojaah</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item active"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title">📖 Jadwal Murojaah</div>
+        <div class="page-subtitle">Atur dan pantau jadwal murojaah harian Anda</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Quote -->
+    <div class="quote-block mb-3">
+      <div class="quote-arabic">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+      <div class="quote-indo">"Sebaik-baik kalian adalah yang mempelajari Al-Qur'an dan mengajarkannya."</div>
+      <div class="quote-source">— H.R. Bukhari</div>
+    </div>
+
+    <!-- Progress Today -->
+    <div class="card mb-3" id="progressCard">
+      <div class="flex items-center justify-between mb-2">
+        <div class="card-title" style="font-size:0.95rem;">📊 Progress Hari Ini</div>
+        <span id="progressLabel" style="font-size:0.85rem;font-weight:600;color:var(--primary);">0 / 0</span>
+      </div>
+      <div class="progress-bar" style="height:12px;">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+        <span>0%</span>
+        <span id="progressPct">0% selesai</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- Monthly Target -->
+    <div class="target-card mb-3" id="targetCard">
+      <div class="flex items-center justify-between" style="position:relative;z-index:1;">
+        <div>
+          <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold-light);font-weight:600;">🎯 Target Hafalan Bulan Ini</div>
+          <div style="font-size:1.6rem;font-weight:700;margin-top:4px;" id="targetTitle">Belum diatur</div>
+        </div>
+        <button onclick="openModal('modalTarget')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">
+          ✏️ Atur Target
+        </button>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:14px;font-size:0.85rem;position:relative;z-index:1;">
+        <div><span style="color:var(--gold-light);">✅ Tercapai:</span> <strong id="targetDone">0</strong></div>
+        <div><span style="color:rgba(255,255,255,0.7);">🎯 Target:</span> <strong id="targetTotal">0</strong> sesi</div>
+        <div><span style="color:rgba(255,255,255,0.7);">📅 Sisa Hari:</span> <strong id="targetDaysLeft">0</strong></div>
+      </div>
+      <div class="target-progress-bar">
+        <div class="target-progress-fill" id="targetFill" style="width:0%"></div>
+      </div>
+      <div style="text-align:right;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:6px;" id="targetPct">0% tercapai</div>
+    </div>
+
+    <!-- Week Calendar -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="card-title">🗓 Kalender Mingguan</div>
+      </div>
+      <div class="week-calendar" id="weekCalendar"></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <h3 style="color:var(--primary-dark);font-size:1rem;">📋 Daftar Murojaah</h3>
+      <div class="flex gap-1 flex-wrap">
+        <button class="btn btn-outline btn-sm" onclick="exportLaporan()">📊 Ekspor Laporan</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modalTambah')">➕ Tambah Jadwal</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari materi..." oninput="renderList()">
+      </div>
+      <select class="form-control" id="filterStatus" onchange="renderList()" style="width:auto;min-width:130px;">
+        <option value="">Semua Status</option>
+        <option value="belum">Belum</option>
+        <option value="selesai">Selesai</option>
+        <option value="terlewat">Terlewat</option>
+      </select>
+      <select class="form-control" id="filterKategori" onchange="renderList()" style="width:auto;min-width:150px;">
+        <option value="">Semua Kategori</option>
+        <option value="Al-Qur'an">Al-Qur'an</option>
+        <option value="Hadits">Hadits</option>
+        <option value="Bahasa Arab">Bahasa Arab</option>
+        <option value="Fiqh">Fiqh</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+    </div>
+
+    <div id="murojaahList"></div>
+  </div>
+</main>
+
+<!-- Modal Tambah -->
+<div class="modal-overlay" id="modalTambah">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📖 Tambah Jadwal Murojaah</div>
+      <button class="modal-close" onclick="closeModal('modalTambah')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Materi Murojaah <span style="color:red">*</span></label>
+        <input type="text" id="inpMateri" class="form-control" placeholder="Contoh: Al-Baqarah ayat 1-10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="inpKategori" class="form-control">
+            <option value="Al-Qur'an">Al-Qur'an</option>
+            <option value="Hadits">Hadits</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Fiqh">Fiqh</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Waktu</label>
+          <select id="inpWaktu" class="form-control">
+            <option value="Subuh">Subuh</option>
+            <option value="Dhuha">Dhuha</option>
+            <option value="Sore">Sore</option>
+            <option value="Malam">Malam</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Jadwal <span style="color:red">*</span></label>
+        <input type="date" id="inpJadwal" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan (Opsional)</label>
+        <textarea id="inpCatatan" class="form-control" placeholder="Catatan tambahan..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTambah')">Batal</button>
+      <button class="btn btn-primary" onclick="tambahMurojaah()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal-overlay" id="modalEdit">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Jadwal Murojaah</div>
+      <button class="modal-close" onclick="closeModal('modalEdit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label class="form-label">Materi Murojaah</label>
+        <input type="text" id="editMateri" class="form-control">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="editKategori" class="form-control">
+            <option value="Al-Qur'an">Al-Qur'an</option>
+            <option value="Hadits">Hadits</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Fiqh">Fiqh</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Waktu</label>
+          <select id="editWaktu" class="form-control">
+            <option value="Subuh">Subuh</option>
+            <option value="Dhuha">Dhuha</option>
+            <option value="Sore">Sore</option>
+            <option value="Malam">Malam</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input type="date" id="editJadwal" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="editStatus" class="form-control">
+          <option value="belum">Belum</option>
+          <option value="selesai">Selesai</option>
+          <option value="terlewat">Terlewat</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan</label>
+        <textarea id="editCatatan" class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalEdit')">Batal</button>
+      <button class="btn btn-primary" onclick="simpanEdit()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Target Bulanan -->
+<div class="modal-overlay" id="modalTarget">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">🎯 Atur Target Hafalan Bulanan</div>
+      <button class="modal-close" onclick="closeModal('modalTarget')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nama Target / Materi 🏷️</label>
+        <input type="text" id="targetName" class="form-control" placeholder="Contoh: Hafalan Juz 30 / Matan Al-Jazari">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jumlah Sesi Murojaah yang Ditargetkan 🎯</label>
+        <input type="number" id="targetCount" class="form-control" min="1" max="999" value="30" placeholder="30">
+        <p class="form-hint">Berapa total sesi murojaah yang ingin diselesaikan bulan ini?</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTarget')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTarget()">💾 Simpan Target</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+  initSidebar();
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+
+  // Set default date
+  document.getElementById('inpJadwal').value = todayStr();
+
+  function getData() { return getUserData('murojaah', session.userId); }
+  function saveData(d) { saveUserData('murojaah', session.userId, d); }
+
+  // ── Week Calendar ─────────────────────────────────────────
+  function renderCalendar() {
+    const cal = document.getElementById('weekCalendar');
+    const data = getData();
+    const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const ds = d.toISOString().split('T')[0];
+      const hasItems = data.some(m => m.jadwal === ds);
+      const isToday = i === 0;
+      html += `<div class="day-cell ${isToday ? 'today' : ''} ${hasItems ? 'has-items' : ''}" onclick="filterByDate('${ds}')">
+        <div class="day-name">${dayNames[d.getDay()]}</div>
+        <div class="day-num">${d.getDate()}</div>
+      </div>`;
+    }
+    cal.innerHTML = html;
+  }
+
+  function filterByDate(ds) {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterKategori').value = '';
+    renderList(ds);
+  }
+
+  // ── Progress ─────────────────────────────────────────────
+  function updateProgress() {
+    const data = getData();
+    const today = todayStr();
+    const todayItems = data.filter(m => m.jadwal === today);
+    const selesai = todayItems.filter(m => m.status === 'selesai').length;
+    const total = todayItems.length;
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = selesai + ' / ' + total;
+    document.getElementById('progressPct').textContent = pct + '% selesai';
+  }
+
+  // ── Render List ──────────────────────────────────────────
+  function renderList(forceDateFilter) {
+    const data = getData();
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const statusF = document.getElementById('filterStatus').value;
+    const katF = document.getElementById('filterKategori').value;
+
+    let filtered = data.filter(m => {
+      const matchSearch = !search || m.materi.toLowerCase().includes(search) || (m.catatan||'').toLowerCase().includes(search);
+      const matchStatus = !statusF || m.status === statusF;
+      const matchKat = !katF || m.kategori === katF;
+      const matchDate = !forceDateFilter || m.jadwal === forceDateFilter;
+      return matchSearch && matchStatus && matchKat && matchDate;
+    }).sort((a,b) => a.jadwal > b.jadwal ? 1 : -1);
+
+    // Auto-mark overdue
+    const today = todayStr();
+    let changed = false;
+    data.forEach(m => {
+      if (m.jadwal < today && m.status === 'belum') { m.status = 'terlewat'; changed = true; }
+    });
+    if (changed) saveData(data);
+
+    const el = document.getElementById('murojaahList');
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><h3>Tidak ada jadwal ditemukan</h3><p>Tambahkan jadwal murojaah baru untuk memulai</p></div>`;
+      return;
+    }
+
+    const statusBadge = { belum: 'warning', selesai: 'success', terlewat: 'danger' };
+    const statusLabel = { belum: '⏳ Belum', selesai: '✅ Selesai', terlewat: '❌ Terlewat' };
+    const waktuIkon  = { Subuh:'🌙', Dhuha:'🌅', Sore:'🌇', Malam:'🌃' };
+
+    el.innerHTML = filtered.map(m => `
+      <div class="murojaah-item ${m.status}">
+        <div class="murojaah-info">
+          <div class="murojaah-materi">${m.materi}</div>
+          <div class="murojaah-meta">
+            <span>${waktuIkon[m.waktu]||'⏰'} ${m.waktu}</span>
+            <span>📅 ${formatDate(m.jadwal)}</span>
+            <span class="badge badge-primary">${m.kategori}</span>
+            <span class="badge badge-${statusBadge[m.status]}">${statusLabel[m.status]}</span>
+          </div>
+          ${m.catatan ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">📝 ${m.catatan}</div>` : ''}
+        </div>
+        <div class="murojaah-actions">
+          ${m.status !== 'selesai' ? `<button class="btn btn-sm btn-outline" onclick="tandaiSelesai('${m.id}')" title="Tandai Selesai">✅</button>` : ''}
+          <button class="btn btn-sm btn-outline-gold" onclick="editItem('${m.id}')" title="Edit">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="hapus('${m.id}')" title="Hapus">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function tandaiSelesai(id) {
+    const data = getData();
+    const item = data.find(m => m.id === id);
+    if (item) { item.status = 'selesai'; saveData(data); showToast('Murojaah ditandai selesai! 🎉', 'success'); refresh(); }
+  }
+
+  function hapus(id) {
+    if (!confirm('Hapus jadwal murojaah ini?')) return;
+    const data = getData().filter(m => m.id !== id);
+    saveData(data); showToast('Jadwal dihapus.', 'info'); refresh();
+  }
+
+  function editItem(id) {
+    const item = getData().find(m => m.id === id);
+    if (!item) return;
+    document.getElementById('editId').value = id;
+    document.getElementById('editMateri').value = item.materi;
+    document.getElementById('editKategori').value = item.kategori;
+    document.getElementById('editWaktu').value = item.waktu;
+    document.getElementById('editJadwal').value = item.jadwal;
+    document.getElementById('editStatus').value = item.status;
+    document.getElementById('editCatatan').value = item.catatan || '';
+    openModal('modalEdit');
+  }
+
+  function simpanEdit() {
+    const id = document.getElementById('editId').value;
+    const data = getData();
+    const idx = data.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    data[idx].materi   = document.getElementById('editMateri').value.trim();
+    data[idx].kategori = document.getElementById('editKategori').value;
+    data[idx].waktu    = document.getElementById('editWaktu').value;
+    data[idx].jadwal   = document.getElementById('editJadwal').value;
+    data[idx].status   = document.getElementById('editStatus').value;
+    data[idx].catatan  = document.getElementById('editCatatan').value.trim();
+    saveData(data); closeModal('modalEdit'); showToast('Jadwal berhasil diperbarui ✅', 'success'); refresh();
+  }
+
+  function tambahMurojaah() {
+    const materi = document.getElementById('inpMateri').value.trim();
+    const jadwal = document.getElementById('inpJadwal').value;
+    if (!materi) { showToast('Materi tidak boleh kosong!', 'error'); return; }
+    if (!jadwal) { showToast('Tanggal harus dipilih!', 'error'); return; }
+
+    const item = {
+      id: generateId(),
+      materi,
+      kategori: document.getElementById('inpKategori').value,
+      jadwal,
+      waktu: document.getElementById('inpWaktu').value,
+      status: 'belum',
+      catatan: document.getElementById('inpCatatan').value.trim()
+    };
+    const data = getData();
+    data.push(item);
+    saveData(data);
+    closeModal('modalTambah');
+    document.getElementById('inpMateri').value = '';
+    document.getElementById('inpCatatan').value = '';
+    document.getElementById('inpJadwal').value = todayStr();
+    showToast('Jadwal berhasil ditambahkan! 📖', 'success');
+    refresh();
+  }
+
+  function refresh() { renderCalendar(); updateProgress(); renderList(); updateTarget(); }
+  refresh();
+
+  // ── Monthly Target ──────────────────────────────────────────
+  function getTarget() {
+    const key = `misykah_target_${session.userId}`;
+    return JSON.parse(localStorage.getItem(key) || 'null');
+  }
+  function setTargetData(data) {
+    const key = `misykah_target_${session.userId}`;
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function saveTarget() {
+    const name = document.getElementById('targetName').value.trim() || 'Target Murojaah';
+    const count = parseInt(document.getElementById('targetCount').value) || 30;
+    const now = new Date();
+    setTargetData({
+      name,
+      count,
+      month: now.getMonth(),
+      year: now.getFullYear()
+    });
+    closeModal('modalTarget');
+    showToast('Target bulanan berhasil disimpan! 🎯', 'success');
+    updateTarget();
+  }
+
+  function updateTarget() {
+    const target = getTarget();
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+
+    // Count completed sessions this month
+    const data = getData();
+    const selesaiBulanIni = data.filter(m => {
+      if (m.status !== 'selesai') return false;
+      const d = new Date(m.jadwal);
+      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+
+    // Days remaining this month
+    const lastDay = new Date(thisYear, thisMonth + 1, 0).getDate();
+    const daysLeft = lastDay - now.getDate();
+
+    if (target && target.month === thisMonth && target.year === thisYear) {
+      document.getElementById('targetTitle').textContent = target.name;
+      document.getElementById('targetDone').textContent = selesaiBulanIni;
+      document.getElementById('targetTotal').textContent = target.count;
+      document.getElementById('targetDaysLeft').textContent = daysLeft;
+      const pct = Math.min(100, Math.round((selesaiBulanIni / target.count) * 100));
+      document.getElementById('targetFill').style.width = pct + '%';
+      document.getElementById('targetPct').textContent = pct + '% tercapai';
+      // Pre-fill modal
+      document.getElementById('targetName').value = target.name;
+      document.getElementById('targetCount').value = target.count;
+    } else {
+      document.getElementById('targetTitle').textContent = 'Belum diatur — Atur target bulan ini ✏️';
+      document.getElementById('targetDone').textContent = selesaiBulanIni;
+      document.getElementById('targetTotal').textContent = '-';
+      document.getElementById('targetDaysLeft').textContent = daysLeft;
+      document.getElementById('targetFill').style.width = '0%';
+      document.getElementById('targetPct').textContent = 'Silakan atur target';
+    }
+  }
+
+  // ── Export Laporan ──────────────────────────────────────────
+  function exportLaporan() {
+    const data = getData();
+    if (data.length === 0) {
+      showToast('Belum ada data murojaah untuk diekspor.', 'warning');
+      return;
+    }
+
+    const now = new Date();
+    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const bulan = monthNames[now.getMonth()];
+    const tahun = now.getFullYear();
+
+    const total = data.length;
+    const selesai = data.filter(m => m.status === 'selesai').length;
+    const belum = data.filter(m => m.status === 'belum').length;
+    const terlewat = data.filter(m => m.status === 'terlewat').length;
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+
+    // Group by category
+    const byKat = {};
+    data.forEach(m => {
+      if (!byKat[m.kategori]) byKat[m.kategori] = { total: 0, selesai: 0 };
+      byKat[m.kategori].total++;
+      if (m.status === 'selesai') byKat[m.kategori].selesai++;
+    });
+
+    let report = `╔══════════════════════════════════════════════╗\n`;
+    report += `║   📊 LAPORAN MUROJAAH — (مشكاة)              ║\n`;
+    report += `╚══════════════════════════════════════════════╝\n\n`;
+    report += `📅 Periode    : ${bulan} ${tahun}\n`;
+    report += `👤 Santri     : ${session.name} (@${session.username})\n`;
+    report += `📅 Tanggal    : ${getMiladiDate()}\n`;
+    report += `🕌 Hijriah    : ${getHijriDate()}\n`;
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📈 RINGKASAN STATISTIK\n`;
+    report += `${'─'.repeat(48)}\n`;
+    report += `  Total Jadwal     : ${total} sesi\n`;
+    report += `  ✅ Selesai       : ${selesai} sesi (${pct}%)\n`;
+    report += `  ⏳ Belum         : ${belum} sesi\n`;
+    report += `  ❌ Terlewat      : ${terlewat} sesi\n`;
+
+    // Target info
+    const target = getTarget();
+    if (target && target.month === now.getMonth() && target.year === now.getFullYear()) {
+      const tgtPct = Math.min(100, Math.round((selesai / target.count) * 100));
+      report += `\n  🎯 Target Bulan  : ${target.name}\n`;
+      report += `     Progress      : ${selesai}/${target.count} (${tgtPct}%)\n`;
+    }
+
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📂 RINCIAN PER KATEGORI\n`;
+    report += `${'─'.repeat(48)}\n`;
+    Object.entries(byKat).forEach(([kat, v]) => {
+      report += `  📖 ${kat}: ${v.selesai}/${v.total} selesai\n`;
+    });
+
+    report += `\n${'─'.repeat(48)}\n`;
+    report += `📋 DAFTAR LENGKAP MUROJAAH\n`;
+    report += `${'─'.repeat(48)}\n`;
+    data.sort((a,b) => a.jadwal > b.jadwal ? 1 : -1).forEach((m, i) => {
+      const statusIcon = m.status === 'selesai' ? '✅' : m.status === 'terlewat' ? '❌' : '⏳';
+      report += `\n  ${i+1}. ${statusIcon} ${m.materi}\n`;
+      report += `     Kategori: ${m.kategori} | Waktu: ${m.waktu} | Jadwal: ${formatDate(m.jadwal)}\n`;
+      if (m.catatan) report += `     Catatan: ${m.catatan}\n`;
+    });
+
+    report += `\n${'═'.repeat(48)}\n`;
+    report += `Diekspor dari (مشكاة) — Platform Murojaah Santri\n`;
+    report += `${getMiladiDate()} / ${getHijriDate()}\n`;
+
+    downloadTextFile(`Laporan-Murojaah-${bulan}-${tahun}.txt`, report);
+    showToast('Laporan berhasil diekspor! 📊', 'success');
+  }
+</script>
+</body>
+</html>
