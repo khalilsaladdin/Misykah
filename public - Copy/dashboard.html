@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>(مشكاة) — Dashboard Resmi</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<!-- Hamburger -->
+<button class="hamburger" id="hamburger">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-arabic">مِشْكَاة</span>
+      <span class="logo-text">(مشكاة)</span>
+      <span class="logo-tagline">Platform Murojaah & Belajar Santri</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="murojaah.html" class="nav-item"><span class="nav-icon">📖</span> Murojaah</a>
+    <a href="muhadharah.html" class="nav-item"><span class="nav-icon">🎧</span> Muhadharah</a>
+    <a href="books.html" class="nav-item"><span class="nav-icon">📚</span> Buku Digital</a>
+    <a href="belajar.html" class="nav-item"><span class="nav-icon">👥</span> Belajar Bersama & Kelas</a>
+    <a href="faidah.html" class="nav-item"><span class="nav-icon">💡</span> Kolom Faidah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="userInfo"></div>
+    <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <div class="page-title" id="greeting">Assalamualaikum</div>
+        <div class="page-subtitle">Semoga hari ini penuh keberkahan dan ilmu yang bermanfaat di (مشكاة)</div>
+      </div>
+      <div class="header-date">
+        <div class="hijri" id="hijriDate"></div>
+        <div id="miladiDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+      <div class="stat-card">
+        <div class="stat-icon">📖</div>
+        <div>
+          <div class="stat-value" id="statMurojaah">0</div>
+          <div class="stat-label">Murojaah Selesai</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💡</div>
+        <div>
+          <div class="stat-value" id="statFaidah">0</div>
+          <div class="stat-label">Catatan Faidah</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div>
+          <div class="stat-value" id="statHalaqah">0</div>
+          <div class="stat-label">Halaqah Belajar</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎧</div>
+        <div>
+          <div class="stat-value" id="statAudio">0</div>
+          <div class="stat-label">Audio Muhadharah</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div>
+          <div class="stat-value" id="statBooks">0</div>
+          <div class="stat-label">Buku Digital</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h3 class="mb-2" style="color:var(--primary-dark);font-size:1rem;">⚡ Akses Cepat</h3>
+    <div class="quick-actions mb-3" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+      <a href="murojaah.html" class="quick-action">
+        <span class="quick-action-icon">📖</span>
+        <span class="quick-action-label">Jadwal Murojaah</span>
+      </a>
+      <a href="belajar.html" class="quick-action">
+        <span class="quick-action-icon">👥</span>
+        <span class="quick-action-label">Belajar Bersama</span>
+      </a>
+      <a href="faidah.html" class="quick-action">
+        <span class="quick-action-icon">💡</span>
+        <span class="quick-action-label">Kolom Faidah</span>
+      </a>
+      <a href="muhadharah.html" class="quick-action">
+        <span class="quick-action-icon">🎧</span>
+        <span class="quick-action-label">Muhadharah</span>
+      </a>
+      <a href="books.html" class="quick-action">
+        <span class="quick-action-icon">📚</span>
+        <span class="quick-action-label">Buku Digital</span>
+      </a>
+    </div>
+
+    <!-- Target Bulanan Banner (if set) -->
+    <div id="targetBanner" class="card mb-3" style="display:none;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;padding:16px 20px;">
+      <div class="flex items-center justify-between flex-wrap gap-1">
+        <div>
+          <span style="font-size:0.75rem;color:var(--gold-light);font-weight:600;letter-spacing:1px;text-transform:uppercase;">🎯 Target Hafalan Bulan Ini</span>
+          <div style="font-size:1.1rem;font-weight:700;margin-top:2px;" id="dbTargetName">-</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span style="font-size:0.9rem;font-weight:600;" id="dbTargetProgress">0/0 Selesai</span>
+          <a href="murojaah.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);">Lihat Target</a>
+        </div>
+      </div>
+      <div class="target-progress-bar" style="height:8px;margin-top:10px;">
+        <div class="target-progress-fill" id="dbTargetFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Two-column grid -->
+    <div class="grid-2">
+      <!-- Today's Schedule -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Murojaah Hari Ini</div>
+          <a href="murojaah.html" class="btn btn-outline btn-sm">Lihat Semua</a>
+        </div>
+        <div id="todaySchedule">
+          <div class="empty-state" style="padding:30px 20px;">
+            <span class="empty-icon">📋</span>
+            <p>Belum ada jadwal murojaah hari ini</p>
+          </div>
+        </div>
+        <!-- Progress -->
+        <div id="todayProgress" class="d-none" style="margin-top:14px;">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">Progress Hari Ini</span>
+            <span style="font-size:0.8rem;font-weight:600;color:var(--primary);" id="progressText">0%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Faidah & Quote -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Faidah Pilihan -->
+        <div class="card" style="border-left: 4px solid var(--gold); background: linear-gradient(to bottom right, #fff, #fdfcf7);">
+          <div class="card-header" style="border-bottom: 1px dashed var(--cream-dark); padding-bottom: 10px; margin-bottom: 12px;">
+            <div class="card-title" style="font-size: 0.95rem;">💡 Mutiara Faidah Pilihan</div>
+            <a href="faidah.html" class="btn btn-outline btn-sm">Buka Kolom</a>
+          </div>
+          <div id="featuredFaidah">
+            <div style="font-size:0.92rem;font-weight:700;color:var(--primary-dark);margin-bottom:6px;" id="ffJudul">Makna (مشكاة)</div>
+            <div class="font-arabic" style="font-size:1.15rem;color:var(--primary);margin-bottom:6px;" id="ffArabic">مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ</div>
+            <div style="font-size:0.83rem;color:#444;line-height:1.5;margin-bottom:8px;" id="ffIsi">Misykah adalah pelindung lentera yang mengumpulkan cahaya hingga memancar terang benderang...</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-style:italic;" id="ffSumber">📚 Tafsir Ibnu Katsir</div>
+          </div>
+        </div>
+
+        <!-- Daily Quranic Quote -->
+        <div class="quote-block" id="dailyQuote">
+          <div class="quote-arabic"></div>
+          <div class="quote-indo"></div>
+          <div class="quote-source"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Halaqah Bersama & Aktivitas Terkini Grid -->
+    <div class="grid-2 mt-3">
+      <!-- Active Classes & Halaqah -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🏫 Kelas & Halaqah Belajar</div>
+          <a href="belajar.html" class="btn btn-outline btn-sm">Buka Kelas</a>
+        </div>
+        <div id="recentHalaqah">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🕐 Aktivitas Terkini</div>
+        </div>
+        <div id="recentActivity">
+          <div class="empty-state" style="padding:20px;">
+            <span class="empty-icon" style="font-size:2rem;">📊</span>
+            <p style="font-size:0.82rem;">Belum ada aktivitas tercatat</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motivational Footer -->
+    <div style="text-align:center;padding:24px 0 8px;color:var(--text-muted);font-size:0.8rem;">
+      <span class="font-arabic" style="color:var(--gold);font-size:1.2rem;">(مشكاة) — كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ</span>
+    </div>
+  </div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script>
+  requireAuth();
+  const session = getSession();
+
+  // Init
+  document.getElementById('greeting').textContent = 'Assalamualaikum, ' + session.name.split(' ')[0] + ' 👋';
+  document.getElementById('hijriDate').textContent = getHijriDate();
+  document.getElementById('miladiDate').textContent = getMiladiDate();
+  initSidebar();
+
+  // Default Faidah Seed if empty
+  let userFaidah = getUserData('faidah', session.userId);
+  if (!userFaidah || userFaidah.length === 0) {
+    userFaidah = [
+      {
+        id: generateId(),
+        judul: 'Makna Kata (مشكاة) dalam Al-Qur\'an',
+        kategori: 'Al-Qur\'an & Tafsir',
+        arabicText: 'مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ',
+        isi: 'Misykah (مشكاة) adalah lubang penampung lentera di dinding yang memantulkan dan memfokuskan cahaya hingga memancar terang benderang. Perumpamaan cahaya ilmu dan keimanan di hati penuntut ilmu.',
+        sumber: 'Tafsir Al-Qur\'an Al-\'Azhim (Surah An-Nur: 35)',
+        tags: ['misykah', 'cahaya', 'ilmu'],
+        isPinned: true,
+        tanggal: todayStr()
+      }
+    ];
+    saveUserData('faidah', session.userId, userFaidah);
+  }
+
+  // Stats
+  const murojaahData = getUserData('murojaah', session.userId);
+  const audioData    = getUserData('muhadharah', session.userId);
+  const booksData    = getUserData('books', session.userId);
+  const faidahData   = getUserData('faidah', session.userId);
+  const halaqahData  = getGlobalData('halaqah_rooms');
+
+  document.getElementById('statMurojaah').textContent = murojaahData.filter(m => m.status === 'selesai').length;
+  document.getElementById('statFaidah').textContent   = faidahData.length;
+  document.getElementById('statHalaqah').textContent  = halaqahData.length;
+  document.getElementById('statAudio').textContent    = audioData.length;
+  document.getElementById('statBooks').textContent    = booksData.length;
+
+  // Monthly Target Banner
+  const targetKey = `misykah_target_${session.userId}`;
+  const target = JSON.parse(localStorage.getItem(targetKey) || 'null');
+  const now = new Date();
+  if (target && target.month === now.getMonth() && target.year === now.getFullYear()) {
+    const banner = document.getElementById('targetBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('dbTargetName').textContent = target.name;
+      const selesaiBulanIni = murojaahData.filter(m => {
+        if (m.status !== 'selesai') return false;
+        const d = new Date(m.jadwal);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      }).length;
+      const pct = Math.min(100, Math.round((selesaiBulanIni / target.count) * 100));
+      document.getElementById('dbTargetProgress').textContent = `${selesaiBulanIni}/${target.count} Selesai (${pct}%)`;
+      document.getElementById('dbTargetFill').style.width = pct + '%';
+    }
+  }
+
+  // Featured Faidah
+  if (faidahData.length > 0) {
+    const ff = faidahData.find(f => f.isPinned) || faidahData[0];
+    document.getElementById('ffJudul').textContent = ff.judul;
+    document.getElementById('ffArabic').textContent = ff.arabicText || '';
+    document.getElementById('ffArabic').style.display = ff.arabicText ? 'block' : 'none';
+    document.getElementById('ffIsi').textContent = ff.isi.length > 150 ? ff.isi.substring(0, 150) + '...' : ff.isi;
+    document.getElementById('ffSumber').textContent = ff.sumber ? '📚 ' + ff.sumber : '';
+  }
+
+  // Active Classes & Halaqah preview
+  const hlqEl = document.getElementById('recentHalaqah');
+  const classesData = getGlobalData('classes');
+  if (classesData.length > 0 || halaqahData.length > 0) {
+    let itemsHtml = '';
+    if (classesData.length > 0) {
+      itemsHtml += classesData.slice(0, 2).map(c => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--cream-dark);">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-weight:600;font-size:0.9rem;color:var(--primary-dark);">🏫 ${c.nama}</span>
+            <span class="badge badge-gold" style="font-size:0.7rem;">🔑 ${c.kode}</span>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">👤 Pengampu: ${c.pemateri} • 👥 ${c.anggota.length} Santri</div>
+        </div>
+      `).join('');
+    }
+    if (halaqahData.length > 0 && classesData.length < 2) {
+      itemsHtml += halaqahData.slice(0, 2 - classesData.length).map(h => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--cream-dark);">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-weight:600;font-size:0.9rem;color:var(--primary-dark);">${h.judul}</span>
+            <span class="badge ${h.status === 'ongoing' ? 'badge-success' : 'badge-warning'}" style="font-size:0.7rem;">
+              ${h.status === 'ongoing' ? '🟢 Berlangsung' : '⏳ Terjadwal'}
+            </span>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">📖 ${h.materi} • ⏰ ${h.waktu}</div>
+        </div>
+      `).join('');
+    }
+    hlqEl.innerHTML = itemsHtml + `<div class="text-right mt-2"><a href="belajar.html" class="btn btn-outline btn-sm">Buka Belajar & Kelas →</a></div>`;
+  } else {
+    hlqEl.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:0.85rem;">Belum ada grup kelas atau halaqah aktif.</p><a href="belajar.html" class="btn btn-primary btn-sm mt-2">+ Buat Kelas Baru</a></div>`;
+  }
+
+  // Today's schedule
+  const today = todayStr();
+  const todayItems = murojaahData.filter(m => m.jadwal === today);
+  const selesaiCount = todayItems.filter(m => m.status === 'selesai').length;
+  const scheduleEl = document.getElementById('todaySchedule');
+  const progressEl = document.getElementById('todayProgress');
+  const progFill   = document.getElementById('progressFill');
+  const progText   = document.getElementById('progressText');
+
+  if (todayItems.length > 0) {
+    const pct = Math.round((selesaiCount / todayItems.length) * 100);
+    scheduleEl.innerHTML = todayItems.slice(0, 4).map(m => `
+      <div class="murojaah-item ${m.status}" style="margin-bottom:8px;">
+        <div class="murojaah-info">
+          <div class="murojaah-materi" style="font-size:0.88rem;">${m.materi}</div>
+          <div class="murojaah-meta">
+            <span>⏰ ${m.waktu}</span>
+            <span class="badge badge-${m.status==='selesai'?'success':m.status==='terlewat'?'danger':'warning'}">${m.status}</span>
+          </div>
+        </div>
+      </div>`).join('');
+    if (todayItems.length > 4) {
+      scheduleEl.innerHTML += `<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;">+${todayItems.length - 4} lainnya</p>`;
+    }
+    progressEl.classList.remove('d-none');
+    progFill.style.width = pct + '%';
+    progText.textContent = pct + '%';
+  }
+
+  // Daily quote
+  const q = getDailyQuote();
+  const qEl = document.getElementById('dailyQuote');
+  qEl.querySelector('.quote-arabic').textContent = q.arabic;
+  qEl.querySelector('.quote-indo').textContent   = q.indo;
+  qEl.querySelector('.quote-source').textContent = '— ' + q.source;
+
+  // Recent Activity
+  const allActivity = [
+    ...murojaahData.filter(m=>m.status==='selesai').map(m=>({ time: m.jadwal, label: 'Murojaah selesai: ' + m.materi, icon: '✅' })),
+    ...faidahData.map(f => ({ time: f.tanggal, label: 'Faidah: ' + f.judul, icon: '💡' })),
+    ...audioData.map(a => ({ time: a.tanggal, label: 'Audio: ' + a.judul, icon: '🎧' })),
+    ...booksData.map(b => ({ time: b.tanggal, label: 'Buku: ' + b.judul, icon: '📚' }))
+  ].sort((a,b) => b.time > a.time ? 1 : -1).slice(0, 4);
+
+  const actEl = document.getElementById('recentActivity');
+  if (allActivity.length > 0) {
+    actEl.innerHTML = allActivity.map(a => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cream-dark);">
+        <span style="font-size:1.2rem;">${a.icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:0.83rem;font-weight:500;">${a.label}</div>
+          <div style="font-size:0.74rem;color:var(--text-muted);">${formatDate(a.time)}</div>
+        </div>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>
